@@ -1,0 +1,182 @@
+\section{BP神经网络}
+\subsection{神经网络的构造与前向传播}
+神经网络是由单个或多个神经元组成。下面是单个神经元的构造。
+\begin{center}
+\includegraphics[scale=0.5]{../figures/NN1.png}\\
+\textbf{图1}：神经元 
+\end{center}
+该神经元的输入由三个数据$x_1,x_2,x_3$以及偏置项(bias)+1组成，通过神经元后输出的表达式为
+\begin{eqnarray}
+h_{W,b}(x)=f(W^Tx+b)=f(\sum_{i=1}^3 W_ix_i+b)
+\end{eqnarray}
+其中$f$为激活函数。激活函数是为了将线性项$W^Tx$变换为非线性。在BP中，较常用的激活函数为sigmoid函数，其表达式如下
+\begin{eqnarray}
+f(z)=\frac{1}{1+\exp(-z)}
+\end{eqnarray}
+另外，令$b=w_0$，则可重新定义$W=(w_0,w_1,w_2,w_3)^T$，$x=(1,x_1,x_2,x_3)$，于是可将上式写为
+\begin{eqnarray}
+h_{W,b}(x)=f(W^Tx)
+\end{eqnarray}
+下面讨论神经网络。多个神经元可以组成一个层，多个层互相连接可以组成神经网络。其中，接受数据输入的层为输入层，数据计算后的数据的输出层，中间的层则称为隐含层。为下图是含有两个隐含层的神经网络。
+\begin{center}
+\includegraphics[scale=0.5]{../figures/NN2.png}\\
+\textbf{图2}：含有两个隐含层的神经网络
+\end{center}
+如图，最左边的为输入层，即图中的Layer L1，最右边的为输出层，即图中的Layer L4，中间的所有层，即图中的Layer L2，Layer L3为隐含层。
+
+我们用$n_l$来表示网络的层数，记第$i$层为$L_i$，于是输入层为$L_1$，输出层为$L_{n_l}$。由于神经网络可以有任意多的隐层以及隐藏神经元，则我们记$\samplet{W}{l}{ij}$为第$l$层第$j$单元以及第$l+1$层第$i$单元之间的连接权重，$\samplet{b}{l}{i	}$为第$L+1$层第$i$单元的偏执。我们用$\samplet{a}{l}{i}$表示第$l$层第$i$单元的激活值（输出值），则有
+\begin{eqnarray}
+\samplet{a}{l+1}{i}=f(\sum_{j=1}^{S_l}\samplet{W}{l}{ij}\samplet{a}{l}{j}+\samplet{b}{l}{i})
+\end{eqnarray}
+其中当$l=1$时，$\sample{a}{l}=x$，$x$为输入向量$(x_1,x_2,\cdots,x_{S_l})$，$S_l$指第$l$层的神经元个数，我们用$\samplet{z}{l+1}{i}$表示第$l+1$层第$i$单元输入加权和（包括偏置），即
+\begin{eqnarray}
+\samplet{z}{l+1}{i}=\sum_{j=1}^{S_t}\samplet{W}{l}{ij}\samplet{a}{l}{j}+\samplet{b}{l}{i}
+\end{eqnarray}
+则有
+\begin{eqnarray}
+\samplet{a}{l+1}{i}&=&f(\samplet{z}{l+1}{i})\\
+h_{W,b}(x)&=&\sample{a}{n_l}=f(\sample{z}{n_l})
+\end{eqnarray}
+上述过程称为神经网络的前向传播。
+\subsection{神经网络的反向传播}
+根据上面的前向传播，我们设神经网络的各层表示为$L_1,L_2,\cdots,L_{n_l}$，其中，$L_{n_l}$为输出层，对于输出层，假设输出层输出为$t=\sample{a}{n_l}$，$y$为标签，则若为回归问题，则代价函数使用MSE，即
+\begin{eqnarray}
+J(W,b;x,y)=\frac{1}{2}||t-y||^2
+\end{eqnarray}
+接下来计算输出层的残差
+\begin{eqnarray}
+\begin{aligned}
+\samplet{\delta}{n_l}{i}&=\frac{\partial}{\partial \samplet{z}{n_l}{i}}J(W,b;x,y)\\
+&=\frac{\partial}{\partial \samplet{z}{n_l}{i}}\frac{1}{2}||y-h_{W,b}(x)||^2\\
+&=\frac{\partial}{\partial \samplet{z}{n_l}{i}}\frac{1}{2}\sum_{j=1}^S{_{n_l}}(y_i-\samplet{a}{n_l}{j})^2\\
+&=\frac{\partial}{\partial \samplet{z}{n_l}{i}}\frac{1}{2}\sum_{j=1}^S{_{n_l}}(y_i-f(\samplet{z}{n_l}{i}))^2\\
+&=-(y_i-f(\samplet{z}{n_l}{i}))\cdot f'(\samplet{z}{n_l}{i})\\
+&=-(y_i-\samplet{a}{n_l}{i})\cdot f'(\samplet{z}{n_l}{i})
+\end{aligned}
+\end{eqnarray}
+下面考虑残差的递推算法，以输出层前一层为例。由前向传播我们可以推导出
+\begin{eqnarray}
+\samplet{z}{l+1}{i}=\sum_{j=1}^{S_l}\samplet{W}{l}{ij}f(\samplet{z}{l}{i})+\samplet{b}{l}{i}
+\end{eqnarray}
+则有
+\begin{eqnarray}
+\samplet{z}{n_i}{i}=\sum_{j=1}^{S_l} \samplet{W}{n_l-1}{ij}f(\samplet{z}{n_l-1}{i})+\samplet{b}{n_l-1}{i}
+\end{eqnarray}
+于是有
+\begin{eqnarray}
+\frac{\partial \samplet{z}{n_l}{i}}{\partial \samplet{z}{n_l-1}{i}}=\sum_{j=1}^{S_l}\samplet{W}{n_l-1}{ij}f'(\samplet{z}{n_l-1}{i})
+\end{eqnarray}
+则可以得到输出层前一层的残差
+\begin{eqnarray}
+\begin{aligned}
+\samplet{\delta}{n_l-1}{i} &= \frac{\partial}{\partial \samplet{z}{n_l-1}{i}}J(W,b;x,y)\\
+&= \frac{\partial J(W,b;x,y)}{\partial \samplet{z}{n_l}{i}}\cdot\frac{\partial \samplet{z}{n_l}{i}}{\partial \samplet{z}{n_l-1}{i}}\\
+&= \sum_{j=1}^{S_l}\samplet{\delta}{n_l}{j}\samplet{W}{n_l-1}{ij}f'(\samplet{z}{n_l-1}{i})
+\end{aligned}
+\end{eqnarray}
+将$n_l-1$与$n_l$的关系替换为$l$与$l+1$的关系，则可得到
+\begin{eqnarray}
+\samplet{\delta}{l}{i}=\frac{\partial}{\partial \samplet{z}{l}{i}}J(W,b;x,y)=
+\left(
+	\begin{aligned}
+		\sum_{j=1}^{S_{l+1}}\samplet{W}{l}{ji}\samplet{\delta}{l+1}{j}
+	\end{aligned}
+\right)
+f'(\samplet{z}{l}{i})
+\end{eqnarray}
+若取函数$f$为sigmoid函数，则有
+\begin{eqnarray}
+f'(\samplet{z}{l}{i})=f(\samplet{z}{l}{i})\circ(1-f(\samplet{z}{l}{i}))=\samplet{a}{l}{i}\circ(1-\samplet{a}{l}{i})
+\end{eqnarray}
+其中$\circ$代表点乘。于是可得到$\samplet{\sigma}{l+1}{j}$到$\samplet{\sigma}{l}{j}$的递推式：
+\begin{eqnarray}
+\samplet{\delta}{l}{i}=
+\left(
+	\begin{aligned}
+		\sum_{j=1}^{S_{l+1}}\samplet{W}{l}{ji}\samplet{\delta}{l+1}{j}
+	\end{aligned}
+\right)
+(\samplet{a}{l}{i}\circ(1-\samplet{a}{l}{i}))
+\end{eqnarray}
+反向传播，一般采用梯度下降法对每一层的权重进行调整，即
+\begin{eqnarray}
+\samplet{W}{l}{ij}=\samplet{W}{l}{ij}-\alpha\frac{\partial}{\partial \samplet{W}{l}{ij}}J(W,b;x,y)
+\end{eqnarray}
+其中，$\alpha$是学习率。因而需要求权重$\samplet{W}{l}{ij}$对于代价函数的偏导，此时可使用当前层的残差来进行计算，即
+\begin{eqnarray}
+\frac{\partial}{\partial \samplet{W}{l}{ij}}J(W,b;x,y)=\frac{\partial J(W,b;x,y)}{\partial \samplet{z}{l+1}{i}}\frac{\samplet{z}{l+1}{i}}{\samplet{W}{l}{ij}}
+\end{eqnarray}
+又有
+\begin{eqnarray}
+\frac{\samplet{z}{l+1}{i}}{\samplet{W}{l}{ij}}=\frac{\left( \sum_{j=1}^{S_l}\samplet{W}{l}{ij}f(\samplet{z}{l}{i}) \right)}{\samplet{W}{l}{ij}}=f(\samplet{z}{l}{i})=\samplet{a}{l}{i}
+\end{eqnarray}
+于是可得
+\begin{eqnarray}
+\frac{\partial}{\partial \samplet{W}{l}{ij}}J(W,b;x,y)=\samplet{a}{l}{j}\samplet{\delta}{l+1}{i}
+\end{eqnarray}
+综上，可以总结BP神经网络算法
+\paragraph{BP神经网络算法}
+\begin{lstlisting}[language=python]
+`输入：训练输入，训练输出，学习率`
+while `未达到收敛条件`
+    `
+	输入训练输入，训练输出，学习率\\
+	1.初始化神经网络的权重与偏置\\
+	2.对输入进行前向传播，得到除输入层外每一层（$L_2,\cdots,L_{n_l}$）的激活值$\sample{a}{2},\cdots,\sample{a}{n_l}$\\
+	3.计算各层残差：\\
+	(1)对输出层（第$n_l$层）
+	\begin{eqnarray}
+	\sample{\delta}{n_l}=-(y-\sample{a}{n_l})\cdot(\sample{a}{l}\circ(1-\sample{a}{l}))
+	\end{eqnarray}
+	(2)对于$l=n_l-1,\cdots,2$各层，可递推得出残差值
+	\begin{eqnarray}
+	\sample{\delta}{l}=((\sample{W}{l})^T\sample{\delta}{l+1})\cdot(\sample{a}{l})
+	\end{eqnarray}
+	(3)计算损失函数对每一层权重的偏导数值
+	\begin{eqnarray}
+	\nabla_{\sample{W}{l}}J(W,b;x,y)=\sample{\delta}{l+1}(\sample{a}{l})^T
+	\end{eqnarray}
+	(4)更新参数
+	\begin{eqnarray}
+	\sample{W}{l}=\sample{W}{l}-\alpha\nabla_{\sample{W}{l}}J(W,b;x,y)
+	\end{eqnarray}
+    `
+end
+
+\end{lstlisting}
+
+若为多分类问题，先对$y$进行one-hot处理得到$p$维向量$(y_1,y_2,\cdots,y_p)$（假设$y$有$p$种取值），并将输出层的激活函数选为softmax，即
+\begin{eqnarray}
+\samplet{a}{n_l}{i}=f_s(\samplet{z}{n_l}{i})=\frac{e^{\samplet{z}{n_l}{i}}}{\sum_je^{\samplet{z}{n_l}{j}}}
+\end{eqnarray}
+并且代价函数使用交叉熵损失函数
+\begin{eqnarray}
+J(W,b;x,y)=-\sum_i y_i\log \samplet{a}{n_l}{i}
+\end{eqnarray}
+则输出层残差为
+\begin{eqnarray}
+\begin{aligned}
+\samplet{\delta}{n_l}{i}&= \frac{\partial J}{\partial \samplet{z}{n_l}{i}}\\
+&=\sum_i\frac{\partial J}{\samplet{a}{n_l}{i}}\cdot\frac{\partial \samplet{a}{n_l}{i}}{\partial \samplet{z}{n_l}{i}}\\
+&=\sum_i\frac{\partial -\sum_i y_i\log\samplet{a}{n_l}{i}}{\samplet{a}{n_l}{i}}\cdot\frac{\partial \samplet{a}{n_l}{i}}{\partial \samplet{z}{n_l}{i}}\\
+&=-\sum_i\frac{y_i}{\samplet{a}{n_l}{i}}\frac{\partial \samplet{a}{n_l}{i}}{\partial \samplet{z}{n_l}{j}}
+\end{aligned}
+\end{eqnarray}
+当$i=j$时，记$e^{\samplet{z}{n_l}{j}}=e^A$，$\sum_{k\neq j}e^{\samplet{z}{n_l}{k}}=e^B$，显然有$e^A+e^B=\sum_ie^{\samplet{z}{n_l}{i}}$，于是
+\begin{eqnarray}
+\begin{aligned}
+\frac{\partial \samplet{a}{n_l}{i}}{\partial \samplet{z}{n_l}{j}} &= \frac{\partial \samplet{a}{n_l}{j}}{\partial \samplet{z}{n_l}{j}}\\
+&= \frac{\partial \frac{e^A}{e^A+e^B}}{\partial A}\\
+&= \frac{e^A(e^B+e^A)-e^{2A}}{(e^A+e^B)^2}\\
+&= \frac{e^Ae^B}{(e^A+e^B)^2}\\
+&= \frac{e^A}{e^A+e^B}\frac{e^B}{e^A+e^B}\\
+&= \frac{e^A}{e^A+e^B}(1-\frac{e^A}{e^A+e^B})\\
+&= \samplet{a}{n_l}{j}(1-\samplet{a}{n_l}{j})
+\end{aligned}
+\end{eqnarray}
+\subsection{激活函数}
+\paragraph{sigmoid}
+f(x)=\frac{1}{1+e^{-x}}
+
+\subsection{梯度下降法}
+
