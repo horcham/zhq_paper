@@ -176,7 +176,71 @@ J(W,b;x,y)=-\sum_i y_i\log \samplet{a}{n_l}{i}
 \end{eqnarray}
 \subsection{激活函数}
 \paragraph{sigmoid}
+sigmoid函数表达式如下
+\begin{eqnarray}
 f(x)=\frac{1}{1+e^{-x}}
-
+\end{eqnarray}
+其图像如下图所示
+\begin{center}
+\includegraphics[scale=0.5]{../figures/NN3.png} 
+\end{center}
+sigmoid激活函数考虑将输入值映射到$(0,1)$的区间中，该函数在定义域内连续，且导数大于0。它也有较为简单的求导结果
+\begin{eqnarray}
+f'(x)=f(x)(1-f(x))
+\end{eqnarray}
+但是在神经网络中，特别是对于层数较多的网络，通常不采用sigmoid作为激活函数，主要是因为其容易产生梯度消失的情况。当输入非常大或非常小的时候，其梯度趋近于0，反向传播的过程中直接导致梯度无法传播，无法有效地调整权重。虽然做标准化可以让数据近似服从正态分布，但梯度消失仍有可能产生，在学习过程中可能会产生输入较大或较小的情况。或许这个问题可以用batch-normalization来缓解，但明显采取一种更佳的激活函数是较为可取的做法。
+\paragraph{ReLU}
+ReLU函数表达式如下
+\begin{eqnarray}
+f(x)=\max\{0,x\}
+\end{eqnarray}
+图像如下
+\begin{center}
+\includegraphics[scale=0.5]{../figures/NN5.png} 
+\end{center}
+其决定它有非常简单的求导结果
+\begin{eqnarray}
+f'(x)=
+\left\lbrace
+\begin{aligned}
+1,\ x>0\\
+0,\ x<0
+\end{aligned}
+\right.
+\end{eqnarray}
+RuLU收敛能比sigmoid快的多，一方面其计算快，比起sigmoid函数的导数需要指数运算，RuLU只需要做大小的比较。另一方面，其梯度经过多个层传播之后，多数能够保持原汁原味，比起sigmoid会梯度消失要好得多。然而，RuLU也有弱点，当$x<0$时$f(x)$为0，梯度为0，这直接导致该神经元失活。因而在训练过程中，要注意取较小的学习率。
+\paragraph{Leaky ReLU}
+Leaky ReLU是针对RuLU的弱点而改进的，其考虑用一个比较小的数去替代$x<0$时的$f(x)=0$，即
+\begin{eqnarray}
+f'(x)=
+\left\lbrace
+\begin{aligned}
+x,\ x>0\\
+ax,\ x<0
+\end{aligned}
+\right.
+\end{eqnarray}
+图像如下
+\begin{center}
+\includegraphics[scale=0.5]{../figures/NN7.png} 
+\end{center}
+其求导结果为
+\begin{eqnarray}
+f'(x)=
+\left\lbrace
+\begin{aligned}
+1,\ x>0\\
+a,\ x<0
+\end{aligned}
+\right.
+\end{eqnarray}
+这个方法可以使$x<0$处避免失活，但是额外引入了超参数$a$。
+\paragraph{PReLU}PReLU是针对Leaky ReLU的进一步优化，其考虑在反向传播过程中，也对$a$进行学习，从而避免引入超参数$a$。一些实验$\ ^{[1]}$证明这种优化能取到好的学习效果。
 \subsection{梯度下降法}
-
+梯度下降法的选取能影响收敛速度与质量，	它也是模型构成的一部分。在应用中一般有如下的梯度下降法可供选择
+\paragraph{批量梯度下降法}
+批量梯度下降法（Batch Gradient Descent ）考虑在计算了所有样本之后再对参数进行更新，即
+\begin{eqnarray}
+\sample{W}{l}=\sum_{i=1}^m\sample{W}{l}-\alpha\nabla_{\sample{W}{l}}J(W,b;\sample{x}{i},\sample{y}{i})
+\end{eqnarray} 
+由于通常训练的样本非常大，若在算法所有样本之后再进行参数更新，会让更新的速度减慢。另外，模型实现一般会采用矩阵运算，BGD占的内存会非常多，从而影响计算速度。
