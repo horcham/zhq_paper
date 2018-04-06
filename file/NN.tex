@@ -117,7 +117,7 @@ f'(\samplet{z}{l}{i})=f(\samplet{z}{l}{i})\circ(1-f(\samplet{z}{l}{i}))=\samplet
 综上，可以总结BP神经网络算法
 \paragraph{BP神经网络算法}
 \begin{lstlisting}[language=python]
-`输入：训练输入，训练输出，学习率`
+`输入：训练输入$x$，训练输出$y$，学习率$\alpha$`
 while `未达到收敛条件`
     `
 	输入训练输入，训练输出，学习率\\
@@ -236,11 +236,32 @@ a,\ x<0
 \end{eqnarray}
 这个方法可以使$x<0$处避免失活，但是额外引入了超参数$a$。
 \paragraph{PReLU}PReLU是针对Leaky ReLU的进一步优化，其考虑在反向传播过程中，也对$a$进行学习，从而避免引入超参数$a$。一些实验$\ ^{[1]}$证明这种优化能取到好的学习效果。
-\subsection{梯度下降法}
+\subsection{梯度下降方法}
 梯度下降法的选取能影响收敛速度与质量，	它也是模型构成的一部分。在应用中一般有如下的梯度下降法可供选择
 \paragraph{批量梯度下降法}
 批量梯度下降法（Batch Gradient Descent ）考虑在计算了所有样本之后再对参数进行更新，即
 \begin{eqnarray}
 \sample{W}{l}=\sum_{i=1}^m\sample{W}{l}-\alpha\nabla_{\sample{W}{l}}J(W,b;\sample{x}{i},\sample{y}{i})
 \end{eqnarray} 
-由于通常训练的样本非常大，若在算法所有样本之后再进行参数更新，会让更新的速度减慢。另外，模型实现一般会采用矩阵运算，BGD占的内存会非常多，从而影响计算速度。
+由于通常训练的样本非常大，若在计算所有样本之后再进行参数更新，会让更新的速度减慢。另外，模型实现一般会采用矩阵运算，BGD占的内存会非常多，从而影响计算速度。
+\paragraph{随机梯度下降法}
+随机梯度下降法（Stochastic Gradient Descent ）的想法与BGD截然不同，计算每一个样本之后便进行一次反向传播，对参数进行更新，即
+\begin{eqnarray}
+\sample{W}{l}=\sample{W}{l}-\alpha\nabla_{\sample{W}{l}}J(W,b;x,y)
+\end{eqnarray}
+相比之下，SGD的训练速度比BGD快得多，在BGD进行一次反向传播的时间内，SGD已经进行过多次传播。但是在梯度下降过程中，SGD容易出现震荡，由于单个样本并不能代表梯度最大的方向，也有可能导致解非最优的情况。
+\paragraph{小批量梯度下降法}
+小批量梯度下降法（Mini-batch Gradient Descent ）考虑了批量梯度下降法和随机梯度下降法的优缺点，并进行结合，考虑将数据集划分成多个含有较小数据的batch，然后对这些batch分别采用BGD。下面给出第$i$个batch的训练公式
+\begin{eqnarray}
+\sample{W}{l}=\sum_{(x,y)\in b_i}^m\sample{W}{l}-\alpha\nabla_{\sample{W}{l}}J(W,b;x,y)
+\end{eqnarray}
+其中，$b_i$代表当前batch所包含的训练样本$(x,y)$的集合。
+\paragraph{动量梯度下降法}
+无论是SGD还是MGD，即便MGD已在SGD上做了优化，在训练过程中仍可能会有振荡的风险。一种优化的方法是基于SGD，在对参数$\sample{W}{l}$进行更新时，会考虑上一次的更新幅度，若是当前的梯度方向与上一次的相同，则能够加速收敛，反之则能抑制更新，这也是采用了动量的想法。其算法如下
+\begin{lstlisting}[language=python]
+`输入：学习率$\epsilon$，动量参数$\alpha$，$1$`
+\end{lstlisting}
+
+\subsection{学习率}
+\subsection{正则化}
+\subsection{BP神经网络+}

@@ -8,11 +8,12 @@
 \usepackage{booktabs}
 \usepackage{enumerate}
 \usepackage{amsmath}
+\usepackage[colorlinks,linkcolor=black]{hyperref}
 
 \graphicspath {{figures/}}%The folder containing pictures
 \captionsetup{font={footnotesize}}
 \definecolor{darkgreen}{rgb}{0,0.6,0}
-\definecolor{underground}{rgb}{0.949,0.949,0.949}
+\definecolor{underground}{rgb}{1,1,1}
 \definecolor{strcolor}{rgb}{0.8,0,0.8}
 \colorlet{stringcolour}{red!60!black}
 \colorlet{keywordcolour}{magenta!90!black}
@@ -67,15 +68,18 @@ escapeinside=``
 }
 
 
-
+\tableofcontents       %输出目录
 %\input{file/abstract}
+\input{file/xulun}
+\input{file/data}
+\input{file/opencv}
+\input{file/ML}
 \input{file/NN}
 \input{file/CNN}
-\input{file/RCNN}
 \input{file/appendix}
 %\input{information/info}
-%\tableofcontents       %输出目录
-%\newpage
+
+\newpage
 %if you like to use bibtex, you can delete the above line and use the following two lines
 
 %\bibliographystyle{plain}
