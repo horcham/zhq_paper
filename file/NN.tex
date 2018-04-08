@@ -239,24 +239,24 @@ a,\ x<0
 \subsection{传统BP网络的应用}
 以上介绍的BP网络的算法以及较为传统的结构，我们想探究随着图像尺寸的变化（即输入大小）以及隐含层神经元。首先我们制备数据，通过opencv的方法，将输入图像归一化为同一大小，分别为$64\times 64$，$96\times 96$，$128\times 128$，学习率设置0.03，优化函数采用Mini-batch，以8个样本作为一个batch，epoch设为600。首先考虑当隐含层分别设为1000和500时，图像大小为$64\times 64$时，模型的训练准确率如下：
 \begin{center}
-\includegraphics[scale=0.5]{../figures/Log/BP_new1/BP_new1_acc.png} 
-\includegraphics[scale=0.5]{../figures/Log/BP_new4/BP_new4_acc.png} \\
+\includegraphics[scale=0.4]{../figures/Log/BP_new1/BP_new1_acc.png}
+\includegraphics[scale=0.4]{../figures/Log/BP_new4/BP_new4_acc.png} \\
 图像大小为$64\times 64$时，隐含层为1000和500的准确率图
 \end{center}
 从图中可以看出，隐含层为1000时比500好接近5\%，收敛速度上，前者在epoch为300时就趋于稳定，后者在epoch为450时趋于稳定。其原因四隐含层1000时，其自由度比500大，随着参数的增加，更有可能得到偏差小的模型。从实验可以看出，前者相比于后者在达到较低偏差的同时，其方差也不会很大。
 
 当隐含层分别设为1000和500时，图像大小为$96\times 96$时，模型的训练准确率如下：
 \begin{center}
-\includegraphics[scale=0.5]{../figures/Log/BP_new2/BP_new2_acc.png} 
-\includegraphics[scale=0.5]{../figures/Log/BP_new5/BP_new5_acc.png} \\
+\includegraphics[scale=0.4]{../figures/Log/BP_new2/BP_new2_acc.png}
+\includegraphics[scale=0.4]{../figures/Log/BP_new5/BP_new5_acc.png} \\
 图像大小为$96\times 96$时，隐含层为1000和500的准确率图
 \end{center}
 从图中可以看出，隐含层1000与500在准确率上持平，为50\%左右。由于随着图像的尺寸增加，过拟合的风险增大。而前者相比于后者有更低的模型复杂度，一定程度上抵制了过拟合。而过拟合的风险随着图像尺寸的增大而增大的现象，我们将在下图进一步看到：
 
 当隐含层分别设为1000和500时，图像大小为$128\times 128$时，模型的训练准确率如下：
 \begin{center}
-\includegraphics[scale=0.5]{../figures/Log/BP_new3/BP_new3_acc.png} 
-\includegraphics[scale=0.5]{../figures/Log/BP_new6/BP_new6_acc.png} \\
+\includegraphics[scale=0.4]{../figures/Log/BP_new3/BP_new3_acc.png} 
+\includegraphics[scale=0.4]{../figures/Log/BP_new6/BP_new6_acc.png} \\
 图像大小为$128\times 128$时，隐含层为1000和500的准确率图
 \end{center}
 从图中可看出，当隐含层为1000时，其训练过程中准确率出现了大幅度的震荡，而且准确率收敛在了45\%左右，而隐含层为500的模型相比隐含层为1000的模型的更加健壮，而且准确率接近50\%，比隐含层为1000的模型高了大概4\%。
@@ -312,6 +312,28 @@ J(W,b;x,y) = -\sum_i y_i \log \samplet{a}{n_l}{i} + \lambda\sum_w w^2
 \begin{eqnarray}
 J(W,b;x,y) = -\sum_i y_i \log \samplet{a}{n_l}{i} + \lambda\sum_w |w|
 \end{eqnarray}
+
+将正则化方法加入到神经网络中，设使用$96\times 96$的图像大小，隐含层神经元个数为500，学习率设置0.03，优化函数采用Mini-batch，以8个样本作为一个batch，epoch设为600。我们依次测试当正则化系数为0.1,0.01,0.001和0.0001时的模型差别，结果如下图所示
+\begin{center}
+\includegraphics[scale=0.4]{../figures/Log/BP_new7/BP_new7_acc.png} 
+\includegraphics[scale=0.4]{../figures/Log/BP_new9/BP_new9_acc.png} \\
+正则化系数为0.1和0.01
+\end{center}
+\begin{center}
+\includegraphics[scale=0.4]{../figures/Log/BP_new8/BP_new8_acc.png} 
+\includegraphics[scale=0.4]{../figures/Log/BP_new10/BP_new10_acc.png} \\
+正则化系数为0.001和0.0001
+\end{center}
+其结果如下表
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule[2pt]
+正则化系数 & 0.1 & 0.01 & 0.001 & 0.0001 \\ 
+准确率 & 0.0587109 & 0.102744 & 0.331844 & 0.49649 \\ 
+\bottomrule[2pt]
+\end{tabular} 
+\end{center}
+可以看出，只有一层隐含层的BP网络对于正则化系数很敏感。当取0.1和0.01时，模型太过简单，以至于得不到好的模型，当放宽到0.0001时，可以解决50\%。相对而言，正则化用于复杂的模型效果会更好，例如卷积神经网络。
 
 神经网络中，除了加入正则化项之外，还能考虑在每次训练中，让所有神经元以一定概率失活，即封闭该神经元的输出，此方法成为dropout。因而在每次训练中，网络结构都不一样，在降低模型复杂度的同时，也是对于多个模型的集成，其示意图如下。
 \begin{center}
