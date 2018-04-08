@@ -236,6 +236,44 @@ a,\ x<0
 \end{eqnarray}
 这个方法可以使$x<0$处避免失活，但是额外引入了超参数$a$。
 \paragraph{PReLU}PReLU是针对Leaky ReLU的进一步优化，其考虑在反向传播过程中，也对$a$进行学习，从而避免引入超参数$a$。一些实验$\ ^{[1]}$证明这种优化能取到好的学习效果。
+\subsection{传统BP网络的应用}
+以上介绍的BP网络的算法以及较为传统的结构，我们想探究随着图像尺寸的变化（即输入大小）以及隐含层神经元。首先我们制备数据，通过opencv的方法，将输入图像归一化为同一大小，分别为$64\times 64$，$96\times 96$，$128\times 128$，学习率设置0.03，优化函数采用Mini-batch，以8个样本作为一个batch，epoch设为600。首先考虑当隐含层分别设为1000和500时，图像大小为$64\times 64$时，模型的训练准确率如下：
+\begin{center}
+\includegraphics[scale=0.5]{../figures/Log/BP_new1/BP_new1_acc.png} 
+\includegraphics[scale=0.5]{../figures/Log/BP_new4/BP_new4_acc.png} \\
+图像大小为$64\times 64$时，隐含层为1000和500的准确率图
+\end{center}
+从图中可以看出，隐含层为1000时比500好接近5\%，收敛速度上，前者在epoch为300时就趋于稳定，后者在epoch为450时趋于稳定。其原因四隐含层1000时，其自由度比500大，随着参数的增加，更有可能得到偏差小的模型。从实验可以看出，前者相比于后者在达到较低偏差的同时，其方差也不会很大。
+
+当隐含层分别设为1000和500时，图像大小为$96\times 96$时，模型的训练准确率如下：
+\begin{center}
+\includegraphics[scale=0.5]{../figures/Log/BP_new2/BP_new2_acc.png} 
+\includegraphics[scale=0.5]{../figures/Log/BP_new5/BP_new5_acc.png} \\
+图像大小为$96\times 96$时，隐含层为1000和500的准确率图
+\end{center}
+从图中可以看出，隐含层1000与500在准确率上持平，为50\%左右。由于随着图像的尺寸增加，过拟合的风险增大。而前者相比于后者有更低的模型复杂度，一定程度上抵制了过拟合。而过拟合的风险随着图像尺寸的增大而增大的现象，我们将在下图进一步看到：
+
+当隐含层分别设为1000和500时，图像大小为$128\times 128$时，模型的训练准确率如下：
+\begin{center}
+\includegraphics[scale=0.5]{../figures/Log/BP_new3/BP_new3_acc.png} 
+\includegraphics[scale=0.5]{../figures/Log/BP_new6/BP_new6_acc.png} \\
+图像大小为$128\times 128$时，隐含层为1000和500的准确率图
+\end{center}
+从图中可看出，当隐含层为1000时，其训练过程中准确率出现了大幅度的震荡，而且准确率收敛在了45\%左右，而隐含层为500的模型相比隐含层为1000的模型的更加健壮，而且准确率接近50\%，比隐含层为1000的模型高了大概4\%。
+
+综上，我们可以得到各个模型的准确率表格
+\begin{center}
+\begin{tabular}{cccc}
+\toprule[2pt]
+\  & $64\times 64$ & $96\times 96$ & $128\times 128$ \\ 
+\midrule[1pt]
+1000 & 0.518188 & \textbf{0.522655} & 0.460115 \\ 
+500 & 0.460753 & 0.516273 & 0.48628 \\ 
+\bottomrule[2pt]
+\end{tabular} 
+\end{center}
+可以看出，在保证图像不要过大而导致过拟合下，隐含层1000的模型比隐含层500的模型性能更优。
+
 \subsection{梯度下降方法}
 梯度下降法的选取能影响收敛速度与质量，	它也是模型构成的一部分。在应用中一般有如下的梯度下降法可供选择
 \paragraph{批量梯度下降法}
@@ -259,9 +297,25 @@ a,\ x<0
 \paragraph{动量梯度下降法}
 无论是SGD还是MGD，即便MGD已在SGD上做了优化，在训练过程中仍可能会有振荡的风险。一种优化的方法是基于SGD，在对参数$\sample{W}{l}$进行更新时，会考虑上一次的更新幅度，若是当前的梯度方向与上一次的相同，则能够加速收敛，反之则能抑制更新，这也是采用了动量的想法。其算法如下
 \begin{lstlisting}[language=python]
-`输入：学习率$\epsilon$，动量参数$\alpha$，$1$`
+`输入：学习率$\epsilon$，动量参数$\alpha$`
+`$t_{dW} = \alpha t_{dW} + (1-\alpha) t_{dW}$`
+`$W = W - \epsilon t_{dW}$`
 \end{lstlisting}
+\subsection{正则化与dropout}
+机器学习中，常会发生过拟合的情况，通常引起这种情况的原因有数据量过小、维度过大、模型复杂度过大等，而此现象是方差过大且偏差太小所致。通常维度过大可采用特征选择的方法来降维，而模型复杂度可以用正则化项来限制。它是考虑在损失函数中添加能反映出模型复杂度的项。例如在神经网络中，下面的损失函数的第二项称为L2正则化
+\begin{eqnarray}
+J(W,b;x,y) = -\sum_i y_i \log \samplet{a}{n_l}{i} + \lambda\sum_w w^2
+\end{eqnarray}
+我们可以把损失函数看出是由偏差衡量项（第一项）和方差衡量项（第二项）组成，其本质是偏差、方差权衡，权衡通过$\lambda$来实现。
 
-\subsection{学习率}
-\subsection{正则化}
+除了L2正则化之外，常用的还有L1正则化，为如下形式
+\begin{eqnarray}
+J(W,b;x,y) = -\sum_i y_i \log \samplet{a}{n_l}{i} + \lambda\sum_w |w|
+\end{eqnarray}
+
+神经网络中，除了加入正则化项之外，还能考虑在每次训练中，让所有神经元以一定概率失活，即封闭该神经元的输出，此方法成为dropout。因而在每次训练中，网络结构都不一样，在降低模型复杂度的同时，也是对于多个模型的集成，其示意图如下。
+\begin{center}
+\includegraphics[scale=0.5]{../figures/dropout.png} \\
+dropout工作原理示意图
+\end{center}
 \subsection{BP神经网络+}

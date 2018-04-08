@@ -1,8 +1,8 @@
 #!/bin/bash
 
-xelatex -shell-escape ML_note.tex
-bibtex ML_note.aux
-xelatex -shell-escape ML_note.tex
-xelatex -shell-escape ML_note.tex
+xelatex -shell-escape zhq_paper.tex
+bibtex zhq_paper.aux
+xelatex -shell-escape zhq_paper.tex
+xelatex -shell-escape zhq_paper.tex
 rm *.aux *.log *.bbl *.blg *.toc 
-evince ML_note.pdf
+evince zhq_paper.pdf
