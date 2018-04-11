@@ -43,11 +43,14 @@ P_{ij}=\frac{1}{p^2}\sum_{v=1}^p\sum_{u=1}^pC_{u+(i-1)\times(p+1),v+(j-1)\times(
 \begin{center}
 \includegraphics[scale=0.4]{../figures/CNN1.png} 
 \end{center}
-
-\subsection{AlexNet}
-\subsection{VGGNet}
-\subsection{Inception}
-\subsection{ResNet}
+\subsection{经典CNN模型}
+\paragraph{AlexNet}AlexNet结构上由8层隐含层组成，前五层为特征提取层，后三层为分类器层，用于做图像分类。其具体的结构如下：
+\begin{center}
+\includegraphics[scale=0.6]{../figures/AlexNet.png} \\
+AlexNet结构，需注意的是，隐含层计算时分为上下部分计算，实际上是一个分布式计算的想法。
+\end{center}
+AlexNet当年提出来用已解决ImageNet的分类问题，对于$224\times224$像素的三通道照片，第一层使用$11\times11\times3\times96$的卷积核；第二层使用$5\times5\times96\times256$的卷积核，并进行最大池化；第三层使用$3\times3\times256\times384$的卷积核；第四层使用$3\times3\times384\times384$的卷积核；第五层使用$3\times3\times384\times256$的卷积核；之后连接全连接层，第六、七层都为4096个神经元，第八层则使用softmax。AlexNet的创新点在于激活函数采用了ReLU与dropout。
+\paragraph{VGGNets}
 \subsection{迁移学习}
 \subsection{CNN+}
 
