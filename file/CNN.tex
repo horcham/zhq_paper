@@ -44,15 +44,62 @@ P_{ij}=\frac{1}{p^2}\sum_{v=1}^p\sum_{u=1}^pC_{u+(i-1)\times(p+1),v+(j-1)\times(
 \includegraphics[scale=0.4]{../figures/CNN1.png} 
 \end{center}
 \subsection{经典CNN模型}
-\paragraph{AlexNet}AlexNet结构上由8层隐含层组成，前五层为特征提取层，后三层为分类器层，用于做图像分类。其具体的结构如下：
+AlexNet结构上由8层隐含层组成，前五层为特征提取层，后三层为分类器层，用于做图像分类。其具体的结构如下：
 \begin{center}
 \includegraphics[scale=0.6]{../figures/AlexNet.png} \\
 AlexNet结构，需注意的是，隐含层计算时分为上下部分计算，实际上是一个分布式计算的想法。
 \end{center}
 AlexNet当年提出来用已解决ImageNet的分类问题，对于$224\times224$像素的三通道照片，第一层使用$11\times11\times3\times96$的卷积核；第二层使用$5\times5\times96\times256$的卷积核，并进行最大池化；第三层使用$3\times3\times256\times384$的卷积核；第四层使用$3\times3\times384\times384$的卷积核；第五层使用$3\times3\times384\times256$的卷积核；之后连接全连接层，第六、七层都为4096个神经元，第八层则使用softmax。AlexNet的创新点在于激活函数采用了ReLU与dropout。
-\paragraph{VGGNets}
-\subsection{迁移学习}
-\subsection{CNN+}
+
+从网络设计的思路上看，VGGNet继承了AlexNet的思路，尝试建立层数更多，深度更深的网络。其有一个很重要的特点是，VGGNet的每个卷积层并不是只做一次卷积操作，而是连续卷积2到4次。以下是两种VGGNet在ImageNet中取得很好效果的结构，分别是16层版本和19层版本
+\begin{center}
+\begin{tabular}{cc}
+\toprule[2pt]
+VGG16 & VGG19 \\ 
+2$\times$ conv3-64 & 2$\times$ conv3-64 \\  
+max pooling & max pooling \\  
+2$\times$ conv3-128 & 2$\times$ conv3-128 \\  
+max pooling & max pooling \\  
+3$\times$ conv3-256 & 4$\times$ conv3-256 \\  
+max pooling & max pooling \\ 
+3$\times$ conv3-512 & 4$\times$ conv3-512 \\  
+max pooling & max pooling \\ 
+3$\times$ conv3-512 & 4$\times$ conv3-512 \\  
+max pooling & max pooling  \\  
+fc 4096 & fc 4096 \\ 
+fc 4096 & fc 4096 \\ 
+fc 1000 & fc 1000 \\ 
+softmax & softmax \\ 
+\bottomrule[2pt]
+\end{tabular} 
+\end{center}
+其中，n$\times$convX-Y表示过滤器的边长为X，深度为Y，连续n层。
+
+\subsection{CNN的应用}
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule[2pt]
+model  & A & B & C & D \\ 
+\midrule[1pt]
+\ & 2$\times$conv3-64 & 1$\times$conv3-64 & 1$\times$conv3-64 & 1$\times$conv3-64 \\ 
+\ & max pooling & max pooling & max pooling & max pooling \\ 
+\ & 2$\times$conv3-128 & 1$\times$conv3-96 & 1$\times$conv3-96 & 1$\times$conv3-96 \\ 
+\ & max pooling & max pooling & max pooling & max pooling \\ 
+\ & 2$\times$conv3-256 & 2$\times$conv3-128 & 1$\times$conv3-128 & 1$\times$conv3-128 \\  
+detail & max pooling & max pooling & max pooling & max pooling \\  
+\ & 2$\times$conv3-512 & 1$\times$conv3-256 & 1$\times$conv3-256 & 1$\times$conv3-256 \\ 
+\ & max pooling & max pooling & max pooling & max pooling \\ 
+\ & 2$\times$conv3-512 & \ & 1$\times$conv3-512 & 2$\times$conv3-512 \\ 
+\ & max pooling & \ & max pooling & max pooling \\
+\ & fc 1000 & fc 1000 & fc 1000 & fc 500 \\ 
+\ & \ & \ & \ & \ \\ 
+\midrule[1pt]
+accuracy & 0.652202 & 0.664327 & 0.673899 & 0.65986 \\ 
+\bottomrule[2pt]
+\end{tabular} 
+\end{center}
+
+\subsection{CNN+X}
 
 
 

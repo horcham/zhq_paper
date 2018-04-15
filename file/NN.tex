@@ -340,4 +340,89 @@ J(W,b;x,y) = -\sum_i y_i \log \samplet{a}{n_l}{i} + \lambda\sum_w |w|
 \includegraphics[scale=0.5]{../figures/dropout.png} \\
 dropout工作原理示意图
 \end{center}
-\subsection{BP神经网络+}
+\begin{center}
+\includegraphics[scale=0.5]{../figures/Log/BP_new1_3/BP_new1_3_acc.png} \\
+\includegraphics[scale=0.5]{../figures/Log/BP_new1_4/BP_new1_4_acc.png} 
+\end{center}
+\subsection{BP神经网络+X}
+原始数据进行SVM的分类结果
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule[2pt]
+\ & svm,linear & svm,poly & svm,rbf & svm,sigmoid \\ 
+$64\times64$ & 0.361199 & 0.524569 & 0.486280 & 0.081685 \\ 
+$96\times96$ & 0.388641 & 0.534142 & 0.507339 & 0.086790 \\ 
+$128\times128$ & 0.373325 & 0.559668 & 0.507977 & 0.356733 \\ 
+\bottomrule[2pt]
+\end{tabular}
+\end{center} 
+
+由于SVM在分类问题上取得很好的效果，考虑将softmax换成SVM，有
+\begin{center}
+\begin{tabular}{ccccccc}
+\toprule[2pt]
+\ &softmax &svm,poly &nsvm,linear & nsvm,poly & nsvm,rbf & nsvm,sigmoid \\ 
+$64\times64$,hid:1000 & 0.518188 & 0.524569 & 0.538609 & 0.576260 & 0.587109 & 0.081685 \\ 
+$96\times96$,hid:1000 & 0.522655 & 0.534142 & 0.530951 & 0.577537 & 0.590938 & 0.075303 \\ 
+$96\times96$,hid:500 & 0.516273 & 0.534142 & 0.507339 & 0.541799 & 0.580728 & 0.066369 \\ 
+$96\times96$,hid:500,C=$10^{-4}$ & 0.49649 & 0.534142 & 0.529675 & 0.572431 & 0.594129 & 0.356733 \\ 
+\bottomrule[2pt]
+\end{tabular} 
+\end{center}
+
+为了更为直观展现结果，上表对应的条形图如下
+\begin{center}
+\includegraphics[scale=0.5]{../figures/NN_svm1.png} \\
+BP神经网络+SVM。model A指$64\times64$，隐含层神经元个数为1000；model B指$96\times96$，隐含层神经元个数为1000；model C指$96\times96$，隐含层神经元个数为500；model D指$96\times96$，隐含层神经元个数为500，正则化系数为0.0001。
+\end{center}
+
+尝试使用决策树代替softmax，与SVM进行对比
+\begin{center}
+\begin{tabular}{cccccccc}
+\toprule[2pt]
+model  & softmax & nsvm,rbf & nCART,mdh:5 & nCART,mdh:10 & nCART,mdh:15 & nCART,mdh:20\\ 
+A & 0.518188 & 0.587109 & 0.414167 & 0.417358 & 0.408424 & 0.411615\\ 
+B & 0.522655 & 0.590938 & 0.416720 & 0.398851 & 0.387364 & 0.391078\\ 
+C & 0.516273 & 0.580728 & 0.353542 & 0.337588 & 0.325463 & 0.327378\\ 
+D & 0.49649 & 0.594129 & 0.395662 & 0.398851 & 0.389917 & 0.391193\\ 
+\bottomrule[2pt]
+\end{tabular} 
+\end{center}
+
+
+为了更为直观展现结果，上表对应的条形图如下
+\begin{center}
+\includegraphics[scale=0.5]{../figures/NN_tree1.png} \\
+BP神经网络+CART。model A指$64\times64$，隐含层神经元个数为1000；model B指$96\times96$，隐含层神经元个数为1000；model C指$96\times96$，隐含层神经元个数为500；model D指$96\times96$，隐含层神经元个数为500，正则化系数为0.0001。
+\end{center}
+
+
+尝试使用随机森林代替softmax，与SVM进行对比
+
+\begin{center}
+\begin{tabular}{cccccc}
+\toprule[2pt]
+model & softmax & nsvm,rbf & nrf,20 & nrf,50 & nrf,80 \\ 
+A & 0.518188 & 0.587109 & 0.544352 & 0.552010 & 0.573070 \\ 
+B & 0.522655 & 0.590938 & 0.530313 & 0.559668 & 0.574346 \\ 
+C & 0.516273 & 0.5580728 & 0.504786 & 0.534780 & 0.555839 \\  
+D & 0.49649 & 0.594129 & 0.523293 & 0.561583 & 0.555839 \\ 
+\midrule[2pt]
+model & nrf,110 & nrf,140 & nrf,170 & nrf,200 & nrf,230 \\ 
+A & 0.574346 & 0.569879 & 0.577537 & 0.580089 & 0.574984 \\ 
+B & 0.569879 & 0.586471 & 0.596043 & 0.583918 & 0.575622 \\ 
+C & 0.545629 & 0.557754 & 0.550734 & 0.562221 & 0.569241 \\ 
+D & 0.560944 & 0.573070 & 0.576899 & 0.580089 & 0.579451 \\ 
+\bottomrule[2pt]
+\end{tabular} 
+\end{center}
+\begin{center}
+\includegraphics[scale=0.5]{../figures/NN_rf1.png} \\
+BP神经网络+CART。model A指$64\times64$，隐含层神经元个数为1000；model B指$96\times96$，隐含层神经元个数为1000；model C指$96\times96$，隐含层神经元个数为500；model D指$96\times96$，隐含层神经元个数为500，正则化系数为0.0001。
+\end{center}
+
+
+
+
+
+
