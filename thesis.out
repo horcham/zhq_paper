@@ -15,15 +15,16 @@
 \BOOKMARK [2][-]{subsection.2.3.7}{卷积神经网络概述}{section.2.3}% 15
 \BOOKMARK [2][-]{subsection.2.3.8}{经典CNN模型}{section.2.3}% 16
 \BOOKMARK [2][-]{subsection.2.3.9}{CNN的应用}{section.2.3}% 17
-\BOOKMARK [1][-]{section.2.4}{model+X}{chapter.2}% 18
-\BOOKMARK [2][-]{subsection.2.4.1}{BP神经网络+X}{section.2.4}% 19
-\BOOKMARK [2][-]{subsection.2.4.2}{CNN+X}{section.2.4}% 20
-\BOOKMARK [1][-]{section.2.5}{参考文献}{chapter.2}% 21
-\BOOKMARK [0][-]{chapter.3}{结论}{}% 22
-\BOOKMARK [0][-]{appendix.A}{外文资料原文}{}% 23
-\BOOKMARK [1][-]{section.A.1}{First\040Principles}{appendix.A}% 24
-\BOOKMARK [2][-]{subsection.A.1.1}{Typography\040exists\040to\040honor\040content.}{section.A.1}% 25
-\BOOKMARK [2][-]{subsection.A.1.2}{Letters\040have\040a\040life\040and\040dignity\040of\040their\040own.}{section.A.1}% 26
-\BOOKMARK [0][-]{appendix.B}{其它附录}{}% 27
-\BOOKMARK [0][-]{appendix*.57}{致 谢}{}% 28
-\BOOKMARK [0][-]{appendix*.58}{作者攻读学位期间发表的学术论文目录}{}% 29
+\BOOKMARK [1][-]{section.2.4}{NN+X}{chapter.2}% 18
+\BOOKMARK [2][-]{subsection.2.4.1}{改进思路}{section.2.4}% 19
+\BOOKMARK [2][-]{subsection.2.4.2}{BP神经网络+X}{section.2.4}% 20
+\BOOKMARK [2][-]{subsection.2.4.3}{CNN+X}{section.2.4}% 21
+\BOOKMARK [1][-]{section.2.5}{参考文献}{chapter.2}% 22
+\BOOKMARK [0][-]{chapter.3}{结论}{}% 23
+\BOOKMARK [0][-]{appendix.A}{外文资料原文}{}% 24
+\BOOKMARK [1][-]{section.A.1}{First\040Principles}{appendix.A}% 25
+\BOOKMARK [2][-]{subsection.A.1.1}{Typography\040exists\040to\040honor\040content.}{section.A.1}% 26
+\BOOKMARK [2][-]{subsection.A.1.2}{Letters\040have\040a\040life\040and\040dignity\040of\040their\040own.}{section.A.1}% 27
+\BOOKMARK [0][-]{appendix.B}{其它附录}{}% 28
+\BOOKMARK [0][-]{appendix*.63}{致 谢}{}% 29
+\BOOKMARK [0][-]{appendix*.64}{作者攻读学位期间发表的学术论文目录}{}% 30

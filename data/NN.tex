@@ -1,6 +1,6 @@
 \section{BP神经网络与卷积神经网络}
 \subsection{神经网络的构造与前向传播}
-神经网络是由单个或多个神经元组成。下图~\ref{fig:bp1}是单个神经元的构造。
+神经网络是由单个或多个神经元组成。图~\ref{fig:bp1}是单个神经元的构造。
 \begin{figure}[htb]
 \centering
 \includegraphics[scale=0.5]{../figures/NN1.png}
@@ -22,7 +22,7 @@ f(z)=\frac{1}{1+\exp(-z)}
 \begin{eqnarray}
 h_{W,b}(x)=f(W^Tx)
 \end{eqnarray}
-下面讨论神经网络。多个神经元可以组成一个层，多个层互相连接可以组成神经网络。其中，接受数据输入的层为输入层，数据计算后的数据的输出层，中间的层则称为隐含层。下图~\ref{fig:bp2}是含有两个隐含层的神经网络。
+下面讨论神经网络。多个神经元可以组成一个层，多个层互相连接可以组成神经网络。其中，接受数据输入的层为输入层，数据计算后的数据的输出层，中间的层则称为隐含层。图~\ref{fig:bp2}是含有两个隐含层的神经网络。
 \begin{figure}[htb]
 \centering
 \includegraphics[scale=0.5]{../figures/NN2.png}
@@ -206,7 +206,7 @@ ReLU函数表达式如下
 \begin{eqnarray}
 f(x)=\max\{0,x\}
 \end{eqnarray}
-图像如下图~\ref{fig:bp4}
+图像如图~\ref{fig:bp4}
 \begin{figure}[htb]
 \centering
 \includegraphics[scale=0.5]{../figures/NN5.png} 
@@ -285,7 +285,7 @@ a,\ x<0
 \end{figure}
 从图中可看出，当隐含层为1000时，其训练过程中准确率出现了大幅度的震荡，而且准确率收敛在了45\%左右，而隐含层为500的模型相比隐含层为1000的模型的更加健壮，而且准确率接近50\%，比隐含层为1000的模型高了大概4\%。
 
-综上，我们可以得到各个模型的准确率表格~\ref{table:bp1}
+综上，我们可以得到各个模型的准确率表~\ref{table:bp1}
 \begin{table}[htb]
 \centering
 \caption{学习率为0.03,优化函数采用MGD,以8个样本作为一个 batch,epoch 设为 600时，不同数据集以及隐含层神经元数量所得到的准确率}
@@ -351,7 +351,7 @@ J(W,b;x,y) = -\sum_i y_i \log \samplet{a}{n_l}{i} + \lambda\sum_w |w|
 \label{fig:bp9}
 \end{figure}
 
-其结果如下表~\ref{table:bp2}
+其结果如表~\ref{table:bp2}
 \begin{table}[htb]
 \centering
 \caption{使用I96数据集，隐含层神经元个数为500，学习率为0.03，优化方法为MGD，以8个样本作为一个batch，epoch设为600，正则化系数为0.1,0.01,0.001和0.0001时准确率表}
@@ -423,7 +423,7 @@ C_{ij}=\sum_{u=1}^m\sum_{v=1}^mw_{uv}I_{i+u-1,j+v-1}
 的平均值或者最大值,这样可以降低更多的维度以及不容易过拟合。如果选择图像中连续
 的范围作为池化区域,并且只是池化重复的隐藏单元产生的特征,那么这些池化单元具有
 平移不变性。这就意味着即使图像经历了一个小的平移之后依然会产生相同的池化特征。
-池化过程如下图~\ref{fig:cnn2}
+池化过程如图~\ref{fig:cnn2}
 \begin{figure}[htb]
 \centering
 \includegraphics[scale=0.7]{../figures/pool.png} 
@@ -441,9 +441,9 @@ P_{ij}=\max_{u\in[1,p],v\in[1,p]}\{C_{u+(i-1)\times(p+1),v+(j-1)\times(p+1)}\}
 \begin{eqnarray}
 P_{ij}=\frac{1}{p^2}\sum_{v=1}^p\sum_{u=1}^pC_{u+(i-1)\times(p+1),v+(j-1)\times(p+1)}
 \end{eqnarray}
-其中，$i,j\in[1,\frac{c}{p}]$。事实上，在设置卷积核时，一般将其设置为四维，各个维度分别为：卷积核长、卷积核宽、上一层的图像深度，卷积核个数。另外，对于一些深度学习的任务，是需要重复卷积很多次，为了实现这一目的，需要确保卷积之后图像长宽不变，于是在卷积之前通常在图像周围补足够个数的0，以扩大图像的尺寸，使得卷积之后的图像与原来的图像尺寸相同。
+其中，$i,j\in[1,\frac{c}{p}]$。事实上，在设置卷积核时，一般将其设置为四维，各个维度分别为：卷积核长、卷积核宽、上一层的图像深度，卷积核个数。另外，对于一些深度学习的任务，是需要重复卷积很多次，为了实现这一目的，需要确保卷积之后图像长宽不变，于是在卷积之前通常在图像周围补足够个数的0，以扩大图像的尺寸，卷积时步长为1，使得卷积之后的图像与原来的图像尺寸相同。在AlexNet，VGGNet，Inception以及本论文所构造的卷及神经网络中，在卷积时都采取这种方法来保证卷积后与卷积前图像尺寸大小相同，因而图像尺寸的削减只通过池化层。
 
-卷积神经网络其实可以包含两个大的部分，分别为特征提取层与分类器层。特征提取层包含若干个卷积层和池化层。在特征提取层中，只需要训练卷积层，而卷积层的共享参数与卷积核的属性，相比于全连接神经网络，参数更少，且抓住了图像的特征。特征提取层的输出需要转化之后，才能接入分类器层，一般的做法是将输出拉长为向量，而分类器层一般是用全连接的神经网络，最后接入softmax层，与标签计算损失函数，进而反向传播。下图~\ref{fig:cnn3}是一种卷积网络结构，其对应的任务是手写数字识别。
+卷积神经网络其实可以包含两个大的部分，分别为特征提取层与分类器层。特征提取层包含若干个卷积层和池化层。在特征提取层中，只需要训练卷积核，而卷积层的共享参数与卷积核的属性，相比于全连接神经网络，参数更少，且抓住了图像的特征。特征提取层的输出需要转化之后，才能接入分类器层，一般的做法是将输出拉长为向量，而分类器层一般是用全连接的神经网络，最后接入softmax层，与标签计算损失函数，进而反向传播。图~\ref{fig:cnn3}是一种卷积网络结构，其对应的任务是手写数字识别。
 \begin{figure}[htb]
 \centering
 \includegraphics[scale=0.4]{../figures/CNN1.png} 
@@ -452,7 +452,7 @@ P_{ij}=\frac{1}{p^2}\sum_{v=1}^p\sum_{u=1}^pC_{u+(i-1)\times(p+1),v+(j-1)\times(
 \end{figure}
 
 \subsection{经典CNN模型}
-AlexNet结构上由8层隐含层组成，前五层为特征提取层，后三层为分类器层，用于做图像分类。其具体的结构如下：
+AlexNet结构上由8层隐含层组成，前五层为特征提取层，后三层为分类器层，用于做图像分类。其具体的结构如图~\ref{fig:cnn4}：
 \begin{figure}[htb]
 \centering
 \includegraphics[scale=0.6]{../figures/AlexNet.png}
@@ -461,10 +461,10 @@ AlexNet结构上由8层隐含层组成，前五层为特征提取层，后三层
 \end{figure}
 AlexNet当年提出来用已解决ImageNet的分类问题，对于$224\times224$像素的三通道照片，第一层使用$11\times11\times3\times96$的卷积核；第二层使用$5\times5\times96\times256$的卷积核，并进行最大池化；第三层使用$3\times3\times256\times384$的卷积核；第四层使用$3\times3\times384\times384$的卷积核；第五层使用$3\times3\times384\times256$的卷积核；之后连接全连接层，第六、七层都为4096个神经元，第八层则使用softmax。AlexNet的创新点在于激活函数采用了ReLU与dropout。
 
-从网络设计的思路上看，VGGNet继承了AlexNet的思路，尝试建立层数更多，深度更深的网络。其有一个很重要的特点是，VGGNet的每个卷积层并不是只做一次卷积操作，而是连续卷积2到4次，并且每次卷积统一采用$3\times3$的卷积核进行卷积。下表~\ref{fig:cnn5}是AlexNet以及两种VGGNet在ImageNet中取得很好效果的结构，分别是16层版本和19层版本。
+从网络设计的思路上看，VGGNet继承了AlexNet的思路，沿用ReLU激活函数与dropout，并尝试建立层数更多，深度更深的网络。其有一个很重要的特点是，VGGNet的每个卷积层并不是只做一次卷积操作，而是连续卷积2到4次，并且每次卷积统一采用$3\times3$的卷积核进行卷积，这可以起到降低参数数量以及让运算速度更快。表~\ref{fig:cnn5}是AlexNet以及两种VGGNet在ImageNet中取得很好效果的结构，分别是16层版本和19层版本。
 \begin{table}[htb]
 \centering
-\caption{AlexNet,VGG16,VGG19结构}
+\caption{AlexNet,VGG16,VGG19结构。其中n$\times$convX-Y表示过滤器的边长为X，卷积核个数Y，连续n层；max pooling代表最大池化层，步长为2；fc m代表全连接层，m个神经元节点；softmax代表softmax层。}
 \begin{tabular}{ccc}
 \toprule[2pt]
 AlexNet & VGG16 & VGG19 \\ 
@@ -486,9 +486,9 @@ softmax & softmax & softmax \\
 \end{tabular} 
 \label{fig:cnn5}
 \end{table}
-n$\times$convX-Y表示过滤器的边长为X，深度为Y，连续n层；max pooling代表最大池化层；fc m代表全连接层，m个神经元节点；softmax代表softmax层。
 
-单纯从AlexNet，VGG16，VGG19的特征提取层进行比较，我们可以计算出参数，如表~\ref{fig:cnn6}
+
+单纯从AlexNet，VGG16，VGG19的特征提取层进行比较，我们可以计算出参数个数，这里我们只计算特征提取层的参数个数，如表~\ref{fig:cnn6}
 \begin{table}[htb]
 \centering
 \caption{AlexNet,VGG16,VGG19参数数量}
@@ -500,16 +500,22 @@ n$\times$convX-Y表示过滤器的边长为X，深度为Y，连续n层；max poo
 \end{tabular} 
 \label{fig:cnn6}
 \end{table}
+可以看到，VGGNet的参数数量是AlexNet的至少4倍，足够大的参数空间决定了VGGNet有足够的表达能力，能够提取出更多的特征，然而训练所需的时间与计算量相当大，为了弥补这一点不足，也提出了迁移学习的方法，在本论文不做相关讨论。
 
-
-
-
+Inception的想法与AlexNet和VGGNet完全不同。AlexNet、VGGNet是通过叠加层数，让网络具有足够的深度，形式上看，不同的卷积层通过串联的方式结合在一起，而Inception采用不同的卷积层进行卷积，再通过并联的方式结合在一起，而非AlexNet或VGGNet中的简单卷积，该结构称为Inception模块，其示意图如~\ref{fig:inception}
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.6]{../figures/Inception.PNG} 
+\caption{Inception模块示意图}
+\label{fig:inception}
+\end{table}
+对于输入，Inception首先用不同尺寸，卷积核数目较少的卷积核对输入矩阵进行卷积，卷积方式采用补0后卷积，以保证卷积后尺寸不变。从不同的卷积核卷积之后的结果进行按第四个维度（即卷积核所在维度）进行拼接，则可以得到一个更深的矩阵。比起VGGNet，在接受相同的输入并返回相同尺寸的输出时，Inception所需要的参数更少。假设对于$224\times224\times128$的图片输入，返回是$224\times224\times128$的输出，VGGNet在该层需要$3\times 3\times128\times128$的卷积核，则VGGNet在该层需要147456参数；而Inception若采用图~\ref{fig:inception}，则考虑将128个卷积核分成3份，则卷积核分别为$1\times1\times128\times42$，$3\times3\times128\times44$，$5\times5\times128\times42$，而Inception中为了避免宽度过大的卷积核的出现，常采用$a\times1\times b\times d$与$1\times a\times d\times c$做串联来代替$a\times a\times b\times c$，这种做法提高了运算速度，降低了参数个数，一定程度上降低了过拟合的风险。我们可以把这种方法运用在$5\times5\times128\times42$的卷积核上，于是可以分解为$5\times1\times128\times70$和$1\times5\times70\times42$两个卷积核，综上，Inception在该层需要的参数为115564。事实上，Inception是通过增加卷积核种类来减少单种卷积核数目，在一定参数的限制下可以让多种卷积核去参与学习。
 \subsection{CNN的应用}
-在卷积神经网络的实验中，使用I128数据集，学习率设置为0.001，优化方法采用Mini-batch动量梯度下降法，以100个样本作为一个batch，epoch设为600。下面四种卷积网络结构由AlexNet和VGGNet修改的网络，网络修改时保留VGGNet所具有的卷积核大小为$3\times3$，且卷积有一定深度的特点，但由于训练数据较少，因而设置比VGGNet浅的网络深度，由于本问题是13个类别的分类问题，类别数比ImageNet的类别数要小得多，因而将VGGNet中分类器层的三个全连接层替换为一个卷积层。下面尝试四种卷积神经网络结构，分别编号为CNN-A，CNN-B，CNN-C，CNN-D，如表~\ref{fig:cnn7}。
-
+在卷积神经网络的实验中，为了保证图片拥有足够的信息量，因而使用I128数据集，为了训练能顺利进行，学习率设置为0.001，优化方法采用Mini-batch动量梯度下降法，以100个样本作为一个batch，epoch设为600。表~\ref{fig:cnn7}中的四种卷积网络结构由AlexNet和VGGNet修改的网络，网络修改时保留VGGNet所具有的卷积核大小为$3\times3$，且卷积有一定深度的特点，但由于训练数据较少，因而设置比VGGNet浅的网络深度，由于本问题是13个类别的分类问题，类别数比ImageNet的类别数要小得多，因而将VGGNet中分类器层的三个全连接层替换为一个卷积层，分别编号为CNN-A，CNN-B，CNN-C，CNN-D。表~\ref{fig:inception2}中的两种网络结构都采用了Inception的思想。由于数据量小，为了防止过拟合，采用了$1\times1$，$3\times3$，$1\times5$，$5\times1$五种卷积核。两种网络结构只有在分类器层上面有区别，第一种采用一层全连接层，神经元个数为1000；第二种采用两层全连接层，神经元个数分别为1000和100。两种网络结构分别标号为CNN-E，CNN-F，如图~\ref{fig:inception2},~\ref{fig:inception3}。
+\newpage
 \begin{table}[htb]
 \centering
-\caption{CNN-A,CNN-B,CNN-C,CNN-D的结构与使用I128数据集，学习率设置为0.001，优化方法采用Mini-batch动量梯度下降法，正则化参数为0.0001，以100个样本作为一个batch，epoch设为600准确率}
+\caption{CNN-A,CNN-B,CNN-C,CNN-D的结构}
 \begin{tabular}{ccccc}
 \toprule[2pt]
 model  & CNN-A & CNN-B & CNN-C & CNN-D \\ 
@@ -526,28 +532,58 @@ model  & CNN-A & CNN-B & CNN-C & CNN-D \\
 \ & max pooling & \ & max pooling & max pooling \\
 \ & fc 1000 & fc 1000 & fc 1000 & fc 500 \\ 
 \ & softmax & softmax & softmax & softmax \\ 
-\midrule[1pt]
-所用数据集 & \multicolumn{4}{c}{I128}\\
-学习率 & \multicolumn{4}{c}{0.01}\\
-优化函数  & \multicolumn{4}{c}{MGD+动量梯度下降法}\\
-正则化参数 & \multicolumn{4}{c}{0.0001}\\
-\midrule[1pt]
-accuracy & 0.652202 & 0.664327 & 0.673899 & 0.659860 \\ 
 \bottomrule[2pt]
 \end{tabular} 
 \label{fig:cnn7}
 \end{table}
 
-这四个模型的准确率变化曲线如图~\ref{fig:cnn8}
 \begin{figure}[htb]
 \centering
-\includegraphics[scale=0.35]{../figures/Log/VGGNet_new2/VGGNet_new2_acc.png} 
-\includegraphics[scale=0.35]{../figures/Log/VGGNet_new4/VGGNet_new4_acc.png} 
-\includegraphics[scale=0.35]{../figures/Log/VGGNet_new5/VGGNet_new5_acc.png} 
-\includegraphics[scale=0.35]{../figures/Log/VGGNet_new6/VGGNet_new6_acc.png} 
-\caption{CNN-A,CNN-B,CNN-C,CNN-D的结构与使用I128数据集，学习率设置为0.001，优化方法采用Mini-batch动量梯度下降法，以100个样本作为一个batch，epoch设为600准确率变化曲线（按左上，右上，左下，右下的顺序）}
-\label{fig:cnn8}
+\includegraphics[scale=0.3]{../figures/inception2.png} 
+\label{fig:inception2}
+\caption{CNN-E的结构}
 \end{figure}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.3]{../figures/inception3.png} 
+\label{fig:inception3}
+\caption{CNN-F的结构}
+\end{figure}
+
+采用CNN-A,CNN-B,CNN-C,CNN-D,CNN-E,CNN-F的结构，使用I128数据集，学习率设置为 0.001，优化方法采用 Mini-batch 动量梯度下降法，正则化参数为0.0001，以100个样本作为一个 batch，epoch 设为600。结果如图~\ref{fig:cnn9}所示
+
+\begin{table}[htb]
+\centering
+\caption{CNN-A,CNN-B,CNN-C,CNN-D,CNN-E,CNN-F的准确率}
+\begin{tabular}{ccccccc}
+\toprule[2pt]
+模型 & CNN-A & CNN-B & CNN-C & CNN-D & CNN-E & CNN-F \\ 
+所用数据集 & \multicolumn{6}{c}{I128}\\
+学习率 & \multicolumn{6}{c}{0.01}\\
+优化函数  & \multicolumn{6}{c}{MGD+动量梯度下降法}\\
+正则化参数 & \multicolumn{6}{c}{0.0001}\\
+\midrule[1pt]
+准确率 & 0.652202 & 0.664327 & 0.673899 & 0.659860 & 0.406509 & 0.411615 \\ 
+\bottomrule[2pt]
+\end{tabular} 
+\label{fig:cnn9}
+\end{table}
+
+从结果可以看出，CNN-C达到了最高的准确率，该模型在模型复杂度和过拟合风险之间找到了权衡，其适当数量的卷积核个数很好的提取了图像的特征，全连接层为1000个神经元，能起到良好的分类其作用。CNN-E和CNN-F都采用了Inception模块构建网络，但取得的效果不如从AlexNet和VGGNet改造而来的CNN-A，CNN-B，CNN-C，CNN-D。
+
+
+
+%这四个模型的准确率变化曲线如图~\ref{fig:cnn8}
+%\begin{figure}[htb]
+%\centering
+%\includegraphics[scale=0.35]{../figures/Log/VGGNet_new2/VGGNet_new2_acc.png} 
+%\includegraphics[scale=0.35]{../figures/Log/VGGNet_new4/VGGNet_new4_acc.png} 
+%\includegraphics[scale=0.35]{../figures/Log/VGGNet_new5/VGGNet_new5_acc.png} 
+%\includegraphics[scale=0.35]{../figures/Log/VGGNet_new6/VGGNet_new6_acc.png} 
+%\caption{CNN-A,CNN-B,CNN-C,CNN-D的结构与使用I128数据集，学习率设置为0.001，优化方法采用Mini-batch动量梯度下降法，以100个样本作为一个batch，epoch设为600准确率变化曲线（按左上，右上，左下，右下的顺序）}
+%\label{fig:cnn8}
+%\end{figure}
 
 
 
