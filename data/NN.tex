@@ -1,0 +1,555 @@
+\section{BP神经网络与卷积神经网络}
+\subsection{神经网络的构造与前向传播}
+神经网络是由单个或多个神经元组成。下图~\ref{fig:bp1}是单个神经元的构造。
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.5]{../figures/NN1.png}
+\caption{神经元}
+\label{fig:bp1}
+\end{figure}
+
+
+
+该神经元的输入由三个数据$x_1,x_2,x_3$以及偏置项(bias)+1组成，通过神经元后输出的表达式为
+\begin{eqnarray}
+h_{W,b}(x)=f(W^Tx+b)=f(\sum_{i=1}^3 W_ix_i+b)
+\end{eqnarray}
+其中$f$为激活函数。激活函数是为了将线性项$W^Tx$变换为非线性。在BP中，较常用的激活函数为sigmoid函数，其表达式如下
+\begin{eqnarray}
+f(z)=\frac{1}{1+\exp(-z)}
+\end{eqnarray}
+另外，令$b=w_0$，则可重新定义$W=(w_0,w_1,w_2,w_3)^T$，$x=(1,x_1,x_2,x_3)$，于是可将上式写为
+\begin{eqnarray}
+h_{W,b}(x)=f(W^Tx)
+\end{eqnarray}
+下面讨论神经网络。多个神经元可以组成一个层，多个层互相连接可以组成神经网络。其中，接受数据输入的层为输入层，数据计算后的数据的输出层，中间的层则称为隐含层。下图~\ref{fig:bp2}是含有两个隐含层的神经网络。
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.5]{../figures/NN2.png}
+\caption{含有两个隐含层的神经网络}
+\label{fig:bp2}
+\end{figure}
+如图，最左边的为输入层，即图中的Layer L1，最右边的为输出层，即图中的Layer L4，中间的所有层，即图中的Layer L2，Layer L3为隐含层。
+
+我们用$n_l$来表示网络的层数，记第$i$层为$L_i$，于是输入层为$L_1$，输出层为$L_{n_l}$。由于神经网络可以有任意多的隐层以及隐藏神经元，则我们记$\samplet{W}{l}{ij}$为第$l$层第$j$单元以及第$l+1$层第$i$单元之间的连接权重，$\samplet{b}{l}{i	}$为第$L+1$层第$i$单元的偏执。我们用$\samplet{a}{l}{i}$表示第$l$层第$i$单元的激活值（输出值），则有
+\begin{eqnarray}
+\samplet{a}{l+1}{i}=f(\sum_{j=1}^{S_l}\samplet{W}{l}{ij}\samplet{a}{l}{j}+\samplet{b}{l}{i})
+\end{eqnarray}
+其中当$l=1$时，$\sample{a}{l}=x$，$x$为输入向量$(x_1,x_2,\cdots,x_{S_l})$，$S_l$指第$l$层的神经元个数，我们用$\samplet{z}{l+1}{i}$表示第$l+1$层第$i$单元输入加权和（包括偏置），即
+\begin{eqnarray}
+\samplet{z}{l+1}{i}=\sum_{j=1}^{S_t}\samplet{W}{l}{ij}\samplet{a}{l}{j}+\samplet{b}{l}{i}
+\end{eqnarray}
+则有
+\begin{eqnarray}
+\samplet{a}{l+1}{i}&=&f(\samplet{z}{l+1}{i})\\
+h_{W,b}(x)&=&\sample{a}{n_l}=f(\sample{z}{n_l})
+\end{eqnarray}
+上述过程称为神经网络的前向传播。
+
+\subsection{神经网络的反向传播}
+根据上面的前向传播，我们设神经网络的各层表示为$L_1,L_2,\cdots,L_{n_l}$，其中，$L_{n_l}$为输出层，对于输出层，假设输出层输出为$t=\sample{a}{n_l}$，$y$为标签，则若为回归问题，则代价函数使用MSE，即
+\begin{eqnarray}
+J(W,b;x,y)=\frac{1}{2}||t-y||^2
+\end{eqnarray}
+接下来计算输出层的残差
+\begin{eqnarray}
+\begin{aligned}
+\samplet{\delta}{n_l}{i}&=\frac{\partial}{\partial \samplet{z}{n_l}{i}}J(W,b;x,y)\\
+&=\frac{\partial}{\partial \samplet{z}{n_l}{i}}\frac{1}{2}||y-h_{W,b}(x)||^2\\
+&=\frac{\partial}{\partial \samplet{z}{n_l}{i}}\frac{1}{2}\sum_{j=1}^S{_{n_l}}(y_i-\samplet{a}{n_l}{j})^2\\
+&=\frac{\partial}{\partial \samplet{z}{n_l}{i}}\frac{1}{2}\sum_{j=1}^S{_{n_l}}(y_i-f(\samplet{z}{n_l}{i}))^2\\
+&=-(y_i-f(\samplet{z}{n_l}{i}))\cdot f'(\samplet{z}{n_l}{i})\\
+&=-(y_i-\samplet{a}{n_l}{i})\cdot f'(\samplet{z}{n_l}{i})
+\end{aligned}
+\end{eqnarray}
+下面考虑残差的递推算法，以输出层前一层为例。由前向传播我们可以推导出
+\begin{eqnarray}
+\samplet{z}{l+1}{i}=\sum_{j=1}^{S_l}\samplet{W}{l}{ij}f(\samplet{z}{l}{i})+\samplet{b}{l}{i}
+\end{eqnarray}
+则有
+\begin{eqnarray}
+\samplet{z}{n_i}{i}=\sum_{j=1}^{S_l} \samplet{W}{n_l-1}{ij}f(\samplet{z}{n_l-1}{i})+\samplet{b}{n_l-1}{i}
+\end{eqnarray}
+于是有
+\begin{eqnarray}
+\frac{\partial \samplet{z}{n_l}{i}}{\partial \samplet{z}{n_l-1}{i}}=\sum_{j=1}^{S_l}\samplet{W}{n_l-1}{ij}f'(\samplet{z}{n_l-1}{i})
+\end{eqnarray}
+则可以得到输出层前一层的残差
+\begin{eqnarray}
+\begin{aligned}
+\samplet{\delta}{n_l-1}{i} &= \frac{\partial}{\partial \samplet{z}{n_l-1}{i}}J(W,b;x,y)\\
+&= \frac{\partial J(W,b;x,y)}{\partial \samplet{z}{n_l}{i}}\cdot\frac{\partial \samplet{z}{n_l}{i}}{\partial \samplet{z}{n_l-1}{i}}\\
+&= \sum_{j=1}^{S_l}\samplet{\delta}{n_l}{j}\samplet{W}{n_l-1}{ij}f'(\samplet{z}{n_l-1}{i})
+\end{aligned}
+\end{eqnarray}
+将$n_l-1$与$n_l$的关系替换为$l$与$l+1$的关系，则可得到
+\begin{eqnarray}
+\samplet{\delta}{l}{i}=\frac{\partial}{\partial \samplet{z}{l}{i}}J(W,b;x,y)=
+\left(
+	\begin{aligned}
+		\sum_{j=1}^{S_{l+1}}\samplet{W}{l}{ji}\samplet{\delta}{l+1}{j}
+	\end{aligned}
+\right)
+f'(\samplet{z}{l}{i})
+\end{eqnarray}
+若取函数$f$为sigmoid函数，则有
+\begin{eqnarray}
+f'(\samplet{z}{l}{i})=f(\samplet{z}{l}{i})\circ(1-f(\samplet{z}{l}{i}))=\samplet{a}{l}{i}\circ(1-\samplet{a}{l}{i})
+\end{eqnarray}
+其中$\circ$代表点乘。于是可得到$\samplet{\sigma}{l+1}{j}$到$\samplet{\sigma}{l}{j}$的递推式：
+\begin{eqnarray}
+\samplet{\delta}{l}{i}=
+\left(
+	\begin{aligned}
+		\sum_{j=1}^{S_{l+1}}\samplet{W}{l}{ji}\samplet{\delta}{l+1}{j}
+	\end{aligned}
+\right)
+(\samplet{a}{l}{i}\circ(1-\samplet{a}{l}{i}))
+\end{eqnarray}
+反向传播，一般采用梯度下降法对每一层的权重进行调整，即
+\begin{eqnarray}
+\samplet{W}{l}{ij}=\samplet{W}{l}{ij}-\alpha\frac{\partial}{\partial \samplet{W}{l}{ij}}J(W,b;x,y)
+\end{eqnarray}
+其中，$\alpha$是学习率。因而需要求权重$\samplet{W}{l}{ij}$对于代价函数的偏导，此时可使用当前层的残差来进行计算，即
+\begin{eqnarray}
+\frac{\partial}{\partial \samplet{W}{l}{ij}}J(W,b;x,y)=\frac{\partial J(W,b;x,y)}{\partial \samplet{z}{l+1}{i}}\frac{\samplet{z}{l+1}{i}}{\samplet{W}{l}{ij}}
+\end{eqnarray}
+又有
+\begin{eqnarray}
+\frac{\samplet{z}{l+1}{i}}{\samplet{W}{l}{ij}}=\frac{\left( \sum_{j=1}^{S_l}\samplet{W}{l}{ij}f(\samplet{z}{l}{i}) \right)}{\samplet{W}{l}{ij}}=f(\samplet{z}{l}{i})=\samplet{a}{l}{i}
+\end{eqnarray}
+于是可得
+\begin{eqnarray}
+\frac{\partial}{\partial \samplet{W}{l}{ij}}J(W,b;x,y)=\samplet{a}{l}{j}\samplet{\delta}{l+1}{i}
+\end{eqnarray}
+综上，可以总结BP神经网络算法
+\textbf{BP神经网络算法}
+
+\begin{lstlisting}[language=python]
+`输入：训练输入$x$，训练输出$y$，学习率$\alpha$`
+while `未达到收敛条件`
+    `
+	输入训练输入，训练输出，学习率\\
+	1.初始化神经网络的权重与偏置\\
+	2.对输入进行前向传播，得到除输入层外每一层（$L_2,\cdots,L_{n_l}$）的激活值$\sample{a}{2},\cdots,\sample{a}{n_l}$\\
+	3.计算各层残差：\\
+	(1)对输出层（第$n_l$层）
+	\begin{eqnarray}
+	\sample{\delta}{n_l}=-(y-\sample{a}{n_l})\cdot(\sample{a}{l}\circ(1-\sample{a}{l}))
+	\end{eqnarray}
+	(2)对于$l=n_l-1,\cdots,2$各层，可递推得出残差值
+	\begin{eqnarray}
+	\sample{\delta}{l}=((\sample{W}{l})^T\sample{\delta}{l+1})\cdot(\sample{a}{l})
+	\end{eqnarray}
+	(3)计算损失函数对每一层权重的偏导数值
+	\begin{eqnarray}
+	\nabla_{\sample{W}{l}}J(W,b;x,y)=\sample{\delta}{l+1}(\sample{a}{l})^T
+	\end{eqnarray}
+	(4)更新参数
+	\begin{eqnarray}
+	\sample{W}{l}=\sample{W}{l}-\alpha\nabla_{\sample{W}{l}}J(W,b;x,y)
+	\end{eqnarray}
+    `
+end
+
+\end{lstlisting}
+
+若为多分类问题，先对$y$进行one-hot处理得到$p$维向量$(y_1,y_2,\cdots,y_p)$（假设$y$有$p$种取值），并将输出层的激活函数选为softmax，即
+\begin{eqnarray}
+\samplet{a}{n_l}{i}=f_s(\samplet{z}{n_l}{i})=\frac{e^{\samplet{z}{n_l}{i}}}{\sum_je^{\samplet{z}{n_l}{j}}}
+\end{eqnarray}
+并且代价函数使用交叉熵损失函数
+\begin{eqnarray}
+J(W,b;x,y)=-\sum_i y_i\log \samplet{a}{n_l}{i}
+\end{eqnarray}
+则输出层残差为
+\begin{eqnarray}
+\begin{aligned}
+\samplet{\delta}{n_l}{i}&= \frac{\partial J}{\partial \samplet{z}{n_l}{i}}\\
+&=\sum_i\frac{\partial J}{\samplet{a}{n_l}{i}}\cdot\frac{\partial \samplet{a}{n_l}{i}}{\partial \samplet{z}{n_l}{i}}\\
+&=\sum_i\frac{\partial -\sum_i y_i\log\samplet{a}{n_l}{i}}{\samplet{a}{n_l}{i}}\cdot\frac{\partial \samplet{a}{n_l}{i}}{\partial \samplet{z}{n_l}{i}}\\
+&=-\sum_i\frac{y_i}{\samplet{a}{n_l}{i}}\frac{\partial \samplet{a}{n_l}{i}}{\partial \samplet{z}{n_l}{j}}
+\end{aligned}
+\end{eqnarray}
+当$i=j$时，记$e^{\samplet{z}{n_l}{j}}=e^A$，$\sum_{k\neq j}e^{\samplet{z}{n_l}{k}}=e^B$，显然有$e^A+e^B=\sum_ie^{\samplet{z}{n_l}{i}}$，于是
+\begin{eqnarray}
+\begin{aligned}
+\frac{\partial \samplet{a}{n_l}{i}}{\partial \samplet{z}{n_l}{j}} &= \frac{\partial \samplet{a}{n_l}{j}}{\partial \samplet{z}{n_l}{j}}\\
+&= \frac{\partial \frac{e^A}{e^A+e^B}}{\partial A}\\
+&= \frac{e^A(e^B+e^A)-e^{2A}}{(e^A+e^B)^2}\\
+&= \frac{e^Ae^B}{(e^A+e^B)^2}\\
+&= \frac{e^A}{e^A+e^B}\frac{e^B}{e^A+e^B}\\
+&= \frac{e^A}{e^A+e^B}(1-\frac{e^A}{e^A+e^B})\\
+&= \samplet{a}{n_l}{j}(1-\samplet{a}{n_l}{j})
+\end{aligned}
+\end{eqnarray}
+\subsection{激活函数}
+\paragraph{sigmoid}
+sigmoid函数表达式如下
+\begin{eqnarray}
+f(x)=\frac{1}{1+e^{-x}}
+\end{eqnarray}
+其图像如图~\ref{fig:bp3}所示
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.5]{../figures/NN3.png} 
+\caption{sigmoid函数}
+\label{fig:bp3}
+\end{figure}
+sigmoid激活函数考虑将输入值映射到$(0,1)$的区间中，该函数在定义域内连续，且导数大于0。它也有较为简单的求导结果
+\begin{eqnarray}
+f'(x)=f(x)(1-f(x))
+\end{eqnarray}
+但是在神经网络中，特别是对于层数较多的网络，通常不采用sigmoid作为激活函数，主要是因为其容易产生梯度消失的情况。当输入非常大或非常小的时候，其梯度趋近于0，反向传播的过程中直接导致梯度无法传播，无法有效地调整权重。虽然做标准化可以让数据近似服从正态分布，但梯度消失仍有可能产生，在学习过程中可能会产生输入较大或较小的情况。或许这个问题可以用batch-normalization来缓解，但明显采取一种更佳的激活函数是较为可取的做法。
+\paragraph{ReLU}
+ReLU函数表达式如下
+\begin{eqnarray}
+f(x)=\max\{0,x\}
+\end{eqnarray}
+图像如下图~\ref{fig:bp4}
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.5]{../figures/NN5.png} 
+\caption{ReLU函数}
+\label{fig:bp4}
+\end{figure}
+其决定它有非常简单的求导结果
+\begin{eqnarray}
+f'(x)=
+\left\lbrace
+\begin{aligned}
+1,\ x>0\\
+0,\ x<0
+\end{aligned}
+\right.
+\end{eqnarray}
+RuLU收敛能比sigmoid快的多，一方面其计算快，比起sigmoid函数的导数需要指数运算，RuLU只需要做大小的比较。另一方面，其梯度经过多个层传播之后，多数能够保持原汁原味，比起sigmoid会梯度消失要好得多。然而，RuLU也有弱点，当$x<0$时$f(x)$为0，梯度为0，这直接导致该神经元失活。因而在训练过程中，要注意取较小的学习率。
+\paragraph{Leaky ReLU}
+Leaky ReLU是针对RuLU的弱点而改进的，其考虑用一个比较小的数去替代$x<0$时的$f(x)=0$，即
+\begin{eqnarray}
+f'(x)=
+\left\lbrace
+\begin{aligned}
+x,\ x>0\\
+ax,\ x<0
+\end{aligned}
+\right.
+\end{eqnarray}
+图像如图~\ref{fig:bp5}
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.5]{../figures/NN7.png}
+\caption{Leaky ReLU函数} 
+\label{fig:bp5}
+\end{figure}
+其求导结果为
+\begin{eqnarray}
+f'(x)=
+\left\lbrace
+\begin{aligned}
+1,\ x>0\\
+a,\ x<0
+\end{aligned}
+\right.
+\end{eqnarray}
+这个方法可以使$x<0$处避免失活，但是额外引入了超参数$a$。
+\paragraph{PReLU}PReLU是针对Leaky ReLU的进一步优化，其考虑在反向传播过程中，也对$a$进行学习，从而避免引入超参数$a$。一些实验$\ ^{[1]}$证明这种优化能取到好的学习效果。
+\subsection{传统BP网络的应用}
+以上介绍的BP网络的算法以及较为传统的结构，我们想探究随着图像尺寸的变化（即输入大小）以及隐含层神经元。首先我们制备数据，通过opencv的方法，将输入图像归一化为同一大小，分别为$64\times 64$，$96\times 96$，$128\times 128$，学习率设置0.03，优化函数采用Mini-batch，以8个样本作为一个batch，epoch设为600。首先考虑当隐含层分别设为1000和500时，图像大小为$64\times 64$时，模型的训练准确率如图~\ref{fig:bp6}
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.35]{../figures/Log/BP_new1/BP_new1_acc.png}
+\includegraphics[scale=0.35]{../figures/Log/BP_new4/BP_new4_acc.png} 
+\caption{学习率为0.03,优化函数采用MGD,以8个样本作为一个 batch,epoch 设为 600,图像大小为$64\times 64$时，隐含层为1000和500的准确率图}
+\label{fig:bp6}
+\end{figure}
+从图中可以看出，隐含层为1000时比500好接近5\%，收敛速度上，前者在epoch为300时就趋于稳定，后者在epoch为450时趋于稳定。其原因是隐含层1000时，其自由度比500大，随着参数的增加，更有可能得到偏差小的模型。从实验可以看出，前者相比于后者在达到较低偏差的同时，其方差也不会很大。
+
+当隐含层分别设为1000和500时，图像大小为$96\times 96$时，模型的训练准确率如图~\ref{fig:bp7}
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.35]{../figures/Log/BP_new2/BP_new2_acc.png}
+\includegraphics[scale=0.35]{../figures/Log/BP_new5/BP_new5_acc.png} 
+\caption{学习率为0.03,优化函数采用MGD,以8个样本作为一个 batch,epoch 设为 600,图像大小为$96\times 96$时，隐含层为1000和500的准确率图}
+\label{fig:bp7}
+\end{figure}
+从图中可以看出，隐含层1000与500在准确率上持平，为50\%左右。由于随着图像的尺寸增加，过拟合的风险增大。而前者相比于后者有更低的模型复杂度，一定程度上抵制了过拟合。而过拟合的风险随着图像尺寸的增大而增大的现象，我们将在下图进一步看到：
+
+当隐含层分别设为1000和500时，图像大小为$128\times 128$时，模型的训练准确率如图~\ref{fig:bp8}
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.35]{../figures/Log/BP_new3/BP_new3_acc.png} 
+\includegraphics[scale=0.35]{../figures/Log/BP_new6/BP_new6_acc.png} \\
+\caption{学习率为0.03,优化函数采用MGD,以8个样本作为一个 batch,epoch 设为 600,图像大小为$128\times 128$时，隐含层为1000和500的准确率图}
+\label{fig:bp8}
+\end{figure}
+从图中可看出，当隐含层为1000时，其训练过程中准确率出现了大幅度的震荡，而且准确率收敛在了45\%左右，而隐含层为500的模型相比隐含层为1000的模型的更加健壮，而且准确率接近50\%，比隐含层为1000的模型高了大概4\%。
+
+综上，我们可以得到各个模型的准确率表格~\ref{table:bp1}
+\begin{table}[htb]
+\centering
+\caption{学习率为0.03,优化函数采用MGD,以8个样本作为一个 batch,epoch 设为 600时，不同数据集以及隐含层神经元数量所得到的准确率}
+\begin{tabular}{cccc}
+\toprule[2pt]
+\  & I64 & I96 & I128 \\ 
+\midrule[1pt]
+1000 & 0.518188 & \textbf{0.522655} & 0.460115 \\ 
+500 & 0.460753 & 0.516273 & 0.48628 \\ 
+\bottomrule[2pt]
+\end{tabular} 
+\label{table:bp1} 
+\end{table}
+可以看出，在保证图像不要过大而导致过拟合的条件下，隐含层1000的模型比隐含层500的模型性能更优。
+
+\subsection{梯度下降方法}
+梯度下降法的选取能影响收敛速度与质量，	它也是模型构成的一部分。在应用中一般有如下的梯度下降法可供选择
+\paragraph{批量梯度下降法}
+批量梯度下降法（Batch Gradient Descent ）考虑在计算了所有样本之后再对参数进行更新，即
+\begin{eqnarray}
+\sample{W}{l}=\sum_{i=1}^m\sample{W}{l}-\alpha\nabla_{\sample{W}{l}}J(W,b;\sample{x}{i},\sample{y}{i})
+\end{eqnarray} 
+由于通常训练的样本非常大，若在计算所有样本之后再进行参数更新，会让更新的速度减慢。另外，模型实现一般会采用矩阵运算，BGD占的内存会非常多，从而影响计算速度。
+\paragraph{随机梯度下降法}
+随机梯度下降法（Stochastic Gradient Descent ）的想法与BGD截然不同，计算每一个样本之后便进行一次反向传播，对参数进行更新，即
+\begin{eqnarray}
+\sample{W}{l}=\sample{W}{l}-\alpha\nabla_{\sample{W}{l}}J(W,b;x,y)
+\end{eqnarray}
+相比之下，SGD的训练速度比BGD快得多，在BGD进行一次反向传播的时间内，SGD已经进行过多次传播。但是在梯度下降过程中，SGD容易出现震荡，由于单个样本并不能代表梯度最大的方向，也有可能导致解非最优的情况。
+\paragraph{小批量梯度下降法}
+小批量梯度下降法（Mini-batch Gradient Descent ）考虑了批量梯度下降法和随机梯度下降法的优缺点，并进行结合，考虑将数据集划分成多个含有较小数据的batch，然后对这些batch分别采用BGD。下面给出第$i$个batch的训练公式
+\begin{eqnarray}
+\sample{W}{l}=\sum_{(x,y)\in b_i}^m\sample{W}{l}-\alpha\nabla_{\sample{W}{l}}J(W,b;x,y)
+\end{eqnarray}
+其中，$b_i$代表当前batch所包含的训练样本$(x,y)$的集合。
+\paragraph{动量梯度下降法}
+无论是SGD还是MGD，即便MGD已在SGD上做了优化，在训练过程中仍可能会有振荡的风险。一种优化的方法是基于SGD，在对参数$\sample{W}{l}$进行更新时，会考虑上一次的更新幅度，若是当前的梯度方向与上一次的相同，则能够加速收敛，反之则能抑制更新，这也是采用了动量的想法。其算法如下
+\begin{lstlisting}[language=python]
+`输入：学习率$\epsilon$，动量参数$\alpha$`
+`$t_{dW} = \alpha t_{dW} + (1-\alpha) t_{dW}$`
+`$W = W - \epsilon t_{dW}$`
+\end{lstlisting}
+\subsection{正则化与dropout}
+机器学习中，常会发生过拟合的情况，通常引起这种情况的原因有数据量过小、维度过大、模型复杂度过大等，而此现象是方差过大且偏差太小所致。通常维度过大可采用特征选择的方法来降维，而模型复杂度可以用正则化项来限制。它是考虑在损失函数中添加能反映出模型复杂度的项。例如在神经网络中，下面的损失函数的第二项称为L2正则化
+\begin{eqnarray}
+J(W,b;x,y) = -\sum_i y_i \log \samplet{a}{n_l}{i} + \lambda\sum_w w^2
+\end{eqnarray}
+我们可以把损失函数看出是由偏差衡量项（第一项）和方差衡量项（第二项）组成，其本质是偏差、方差权衡，权衡通过$\lambda$来实现。
+
+除了L2正则化之外，常用的还有L1正则化，为如下形式
+\begin{eqnarray}
+J(W,b;x,y) = -\sum_i y_i \log \samplet{a}{n_l}{i} + \lambda\sum_w |w|
+\end{eqnarray}
+
+将正则化方法加入到神经网络中，设使用I96数据集，隐含层神经元个数为500，学习率设置0.03，优化方法采用MGD，以8个样本作为一个batch，epoch设为600。我们依次测试当正则化系数为0.1,0.01,0.001和0.0001时的模型差别，结果如图~\ref{fig:bp9}
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.35]{../figures/Log/BP_new7/BP_new7_acc.png} 
+\includegraphics[scale=0.35]{../figures/Log/BP_new9/BP_new9_acc.png} 
+\includegraphics[scale=0.32]{../figures/Log/BP_new8/BP_new8_acc.png} 
+\includegraphics[scale=0.32]{../figures/Log/BP_new10/BP_new10_acc.png} 
+\caption{使用I96数据集，隐含层神经元个数为500，学习率为0.03，优化方法为MGD，以8个样本作为一个batch，epoch设为600时，正则化系数为0.1,0.01,0.001和0.0001时准确率图（按左上，右上，左下，右下的顺序）}
+\label{fig:bp9}
+\end{figure}
+
+其结果如下表~\ref{table:bp2}
+\begin{table}[htb]
+\centering
+\caption{使用I96数据集，隐含层神经元个数为500，学习率为0.03，优化方法为MGD，以8个样本作为一个batch，epoch设为600，正则化系数为0.1,0.01,0.001和0.0001时准确率表}
+\begin{tabular}{ccccc}
+\toprule[2pt]
+正则化系数 & 0.1 & 0.01 & 0.001 & 0.0001 \\ 
+准确率 & 0.0587109 & 0.102744 & 0.331844 & 0.49649 \\ 
+\bottomrule[2pt]
+\end{tabular} 
+\label{table:bp2}
+\end{table}
+可以看出，只有一层隐含层的BP网络对于正则化系数很敏感。当取0.1和0.01时，模型太过简单，以至于得不到好的模型，当将正则化系数放宽到0.0001时，可以接近50\%，但是，过小的，甚至是很接近0的正则化系数，事实上与没有设置正则化的模型性能接近（在没有设置正则化参数为0，$96\times96$的图片大小，隐含层节点为500时，准确率为0.5163），这是由BP网络模型复杂度不够大造成的。相对而言，正则化用于复杂的模型效果会更好，例如卷积神经网络。
+
+神经网络中，除了加入正则化项之外，还能考虑在每次训练中，让所有神经元以一定概率$p$失活，封闭该神经元的输出，即将这部分的神经元输出设置为0。此方法称为dropout。因而在每次训练中，网络结构都不一样，在降低模型复杂度的同时，也是对于多个模型的集成。在验证时，则所有的神经元处于激活状态，即不设置dropout。其示意图如~\ref{fig:bp10}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.5]{../figures/dropout.png}
+\caption{dropout训练时工作原理示意图}
+\label{fig:bp10}
+\end{figure}
+
+尝试在神经网络中加入dropout，依旧使用I96数据集，隐含层神经元个数为500，学习率设置为0.03，优化方法采用MGD，以8个样本作为一个batch，epoch设为600。分别设置dropout为0.1,0.3,0.5,0.7，其结果如图~\ref{fig:bp11}所示
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.35]{../figures/Log/BP_new1_6/BP_new1_6_acc.png} 
+\includegraphics[scale=0.35]{../figures/Log/BP_new1_3/BP_new1_3_acc.png}
+\includegraphics[scale=0.35]{../figures/Log/BP_new1_4/BP_new1_4_acc.png} 
+\includegraphics[scale=0.35]{../figures/Log/BP_new1_5/BP_new1_5_acc.png} 
+\caption{使用I96数据集，隐含层神经元个数为500，学习率设置为0.03，优化方法采用MGD，以8个样本作为一个batch，epoch设为600。分别设置dropout为0.1,0.3,0.5,0.7的准确率图（按左上，右上，左下，右下的顺序）}
+\label{fig:bp11}
+\end{figure}
+
+上述模型的准确率如表~\ref{table:bp3}
+\begin{table}[htb]
+\centering
+\caption{使用I96数据集，隐含层神经元个数为500，学习率设置为0.03，优化方法采用MGD，以8个样本作为一个batch，epoch设为600。分别设置dropout为0.1,0.3,0.5,0.7的准确率表}
+\begin{tabular}{ccccc}
+\toprule[2pt]
+dropout rate & 0.1 & 0.3 & 0.5 & 0.7 \\ 
+准确率 & 0.42693 & 0.50415 & 0.52202 & 0.51691 \\ 
+\bottomrule[2pt]
+\end{tabular} 
+\label{table:bp3}
+\end{table}
+从曲线形态可见，当dropout的概率$p$越大时，曲线更加稳定，并没有出现剧烈震荡的情况，相比于传统的BP网络或者加入正则化的BP网络，其准确率曲线形态也更加稳健。从准确率来看，同样的网络结构，有加入dropout的网络比没有dropout的网络能够达到更高的准确率（其他条件相同时，dropout的概率$p$为0.5时准确率为0.52202，没有dropout时准确率为0.516273），这是由于加入dropout之后，网络具有防止过拟合的性能。一般情况下，dropout加入在全连接层。若是卷积神经网络，则dropout将加入到卷积神经网络的全连接层中，而不加入到卷积层中。在下面的卷积神经网络的探究中，也将在全连接层中加入dropout方法，并设置dropout的概率$p$为0.5。
+
+\subsection{卷积神经网络概述}
+卷积神经网络的特点在于能够提取出一个图像中的各种特征。其原理为自然图像的一
+部分的统计特性与其他部分是一样的。也就是说在这一部分学习的特征也能用在另一部分
+上,所以对于这个图像上的所有位置,我们都能使用同样的学习特征(权值)。
+我们提取一种特征用一种卷积核,卷积核为图~\ref{fig:cnn1}左边图像黄色部分,卷积核的权值为黄色部分右下红色字体，右边图像为卷积后的图像矩阵。
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.7]{../figures/conv.png} 
+\caption{卷积原理图示}
+\label{fig:cnn1}
+\end{figure}
+设大矩阵的大小为为$d\times d$,利用大小为$m\times m$的卷积核可以得到特征提取
+降维后的大小为$(d-m+1)\times(d-m+1)$的矩阵。这个过程为一个特征的提取。在卷积
+的过程中,从原图像(Image)矩阵$I$生成的卷积特征矩阵$C$(Convolved Feature)中的
+每个元素为:
+\begin{eqnarray}
+C_{ij}=\sum_{u=1}^m\sum_{v=1}^mw_{uv}I_{i+u-1,j+v-1}
+\end{eqnarray}
+其中，$i,j\in(d-m+1)$
+对于卷积特征矩阵(Convolved feature)我们下一步进行池化。池化的目的是对图像
+不同位置进行聚合统计来描述大的图像。聚合统计可以通过计算一个区域上某个特定特征
+的平均值或者最大值,这样可以降低更多的维度以及不容易过拟合。如果选择图像中连续
+的范围作为池化区域,并且只是池化重复的隐藏单元产生的特征,那么这些池化单元具有
+平移不变性。这就意味着即使图像经历了一个小的平移之后依然会产生相同的池化特征。
+池化过程如下图~\ref{fig:cnn2}
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.7]{../figures/pool.png} 
+\caption{池化原理图示}
+\label{fig:cnn2}
+\end{figure}
+我们叫上图左图红色部分为一个池,并且通常取能够将卷积特征矩阵平均划分的大小的池。
+池化后我们得到池化特征矩阵$P$(Pooled feature),我们设卷积特征图像为长宽都为$c$的
+矩阵,则池长宽设为$p$,若为最大池化则$P$的元素为:
+\begin{equation}
+P_{ij}=\max_{u\in[1,p],v\in[1,p]}\{C_{u+(i-1)\times(p+1),v+(j-1)\times(p+1)}\}
+\end{equation}
+其中，$i,j\in[1,\frac{c}{p}]$。
+若采用平均池化，则$P$的元素为
+\begin{eqnarray}
+P_{ij}=\frac{1}{p^2}\sum_{v=1}^p\sum_{u=1}^pC_{u+(i-1)\times(p+1),v+(j-1)\times(p+1)}
+\end{eqnarray}
+其中，$i,j\in[1,\frac{c}{p}]$。事实上，在设置卷积核时，一般将其设置为四维，各个维度分别为：卷积核长、卷积核宽、上一层的图像深度，卷积核个数。另外，对于一些深度学习的任务，是需要重复卷积很多次，为了实现这一目的，需要确保卷积之后图像长宽不变，于是在卷积之前通常在图像周围补足够个数的0，以扩大图像的尺寸，使得卷积之后的图像与原来的图像尺寸相同。
+
+卷积神经网络其实可以包含两个大的部分，分别为特征提取层与分类器层。特征提取层包含若干个卷积层和池化层。在特征提取层中，只需要训练卷积层，而卷积层的共享参数与卷积核的属性，相比于全连接神经网络，参数更少，且抓住了图像的特征。特征提取层的输出需要转化之后，才能接入分类器层，一般的做法是将输出拉长为向量，而分类器层一般是用全连接的神经网络，最后接入softmax层，与标签计算损失函数，进而反向传播。下图~\ref{fig:cnn3}是一种卷积网络结构，其对应的任务是手写数字识别。
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.4]{../figures/CNN1.png} 
+\caption{一种CNN用于手写数字识别的结构}
+\label{fig:cnn3}
+\end{figure}
+
+\subsection{经典CNN模型}
+AlexNet结构上由8层隐含层组成，前五层为特征提取层，后三层为分类器层，用于做图像分类。其具体的结构如下：
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.6]{../figures/AlexNet.png}
+\caption{AlexNet结构。需注意的是，隐含层计算时分为上下部分计算，实际上是一个分布式计算的想法}
+\label{fig:cnn4}
+\end{figure}
+AlexNet当年提出来用已解决ImageNet的分类问题，对于$224\times224$像素的三通道照片，第一层使用$11\times11\times3\times96$的卷积核；第二层使用$5\times5\times96\times256$的卷积核，并进行最大池化；第三层使用$3\times3\times256\times384$的卷积核；第四层使用$3\times3\times384\times384$的卷积核；第五层使用$3\times3\times384\times256$的卷积核；之后连接全连接层，第六、七层都为4096个神经元，第八层则使用softmax。AlexNet的创新点在于激活函数采用了ReLU与dropout。
+
+从网络设计的思路上看，VGGNet继承了AlexNet的思路，尝试建立层数更多，深度更深的网络。其有一个很重要的特点是，VGGNet的每个卷积层并不是只做一次卷积操作，而是连续卷积2到4次，并且每次卷积统一采用$3\times3$的卷积核进行卷积。下表~\ref{fig:cnn5}是AlexNet以及两种VGGNet在ImageNet中取得很好效果的结构，分别是16层版本和19层版本。
+\begin{table}[htb]
+\centering
+\caption{AlexNet,VGG16,VGG19结构}
+\begin{tabular}{ccc}
+\toprule[2pt]
+AlexNet & VGG16 & VGG19 \\ 
+conv11-96 & 2$\times$ conv3-64 & 2$\times$ conv3-64 \\  
+max pooling & max pooling & max pooling \\  
+conv5-256 & 2$\times$ conv3-128 & 2$\times$ conv3-128 \\  
+max pooling & max pooling & max pooling \\  
+2$\times$conv3-384 & 3$\times$ conv3-256 & 4$\times$ conv3-256 \\  
+conv3-256 & max pooling & max pooling \\ 
+max pooling & 3$\times$ conv3-512 & 4$\times$ conv3-512 \\  
+\ & max pooling & max pooling \\ 
+\ & 3$\times$ conv3-512 & 4$\times$ conv3-512 \\  
+\ & max pooling & max pooling  \\  
+fc 4096 & fc 4096 & fc 4096 \\ 
+fc 4096 & fc 4096 & fc 4096 \\ 
+fc 1000 & fc 1000 & fc 1000 \\ 
+softmax & softmax & softmax \\ 
+\bottomrule[2pt]
+\end{tabular} 
+\label{fig:cnn5}
+\end{table}
+n$\times$convX-Y表示过滤器的边长为X，深度为Y，连续n层；max pooling代表最大池化层；fc m代表全连接层，m个神经元节点；softmax代表softmax层。
+
+单纯从AlexNet，VGG16，VGG19的特征提取层进行比较，我们可以计算出参数，如表~\ref{fig:cnn6}
+\begin{table}[htb]
+\centering
+\caption{AlexNet,VGG16,VGG19参数数量}
+\begin{tabular}{cccc}
+\toprule[2pt]
+\ & AlexNet & VGG16 & VGG19 \\ 
+参数数量 & 3,745,824 & 14,710,464 & 19,982,016 \\ 
+\bottomrule[2pt]
+\end{tabular} 
+\label{fig:cnn6}
+\end{table}
+
+
+
+
+\subsection{CNN的应用}
+在卷积神经网络的实验中，使用I128数据集，学习率设置为0.001，优化方法采用Mini-batch动量梯度下降法，以100个样本作为一个batch，epoch设为600。下面四种卷积网络结构由AlexNet和VGGNet修改的网络，网络修改时保留VGGNet所具有的卷积核大小为$3\times3$，且卷积有一定深度的特点，但由于训练数据较少，因而设置比VGGNet浅的网络深度，由于本问题是13个类别的分类问题，类别数比ImageNet的类别数要小得多，因而将VGGNet中分类器层的三个全连接层替换为一个卷积层。下面尝试四种卷积神经网络结构，分别编号为CNN-A，CNN-B，CNN-C，CNN-D，如表~\ref{fig:cnn7}。
+
+\begin{table}[htb]
+\centering
+\caption{CNN-A,CNN-B,CNN-C,CNN-D的结构与使用I128数据集，学习率设置为0.001，优化方法采用Mini-batch动量梯度下降法，正则化参数为0.0001，以100个样本作为一个batch，epoch设为600准确率}
+\begin{tabular}{ccccc}
+\toprule[2pt]
+model  & CNN-A & CNN-B & CNN-C & CNN-D \\ 
+\midrule[1pt]
+\ & 2$\times$conv3-64 & 1$\times$conv3-64 & 1$\times$conv3-64 & 1$\times$conv3-64 \\ 
+\ & max pooling & max pooling & max pooling & max pooling \\ 
+\ & 2$\times$conv3-128 & 1$\times$conv3-96 & 1$\times$conv3-96 & 1$\times$conv3-96 \\ 
+\ & max pooling & max pooling & max pooling & max pooling \\ 
+\ & 2$\times$conv3-256 & 2$\times$conv3-128 & 1$\times$conv3-128 & 1$\times$conv3-128 \\  
+网络结构 & max pooling & max pooling & max pooling & max pooling \\  
+\ & 2$\times$conv3-512 & 1$\times$conv3-256 & 1$\times$conv3-256 & 1$\times$conv3-256 \\ 
+\ & max pooling & max pooling & max pooling & max pooling \\ 
+\ & 2$\times$conv3-512 & \ & 1$\times$conv3-512 & 2$\times$conv3-512 \\ 
+\ & max pooling & \ & max pooling & max pooling \\
+\ & fc 1000 & fc 1000 & fc 1000 & fc 500 \\ 
+\ & softmax & softmax & softmax & softmax \\ 
+\midrule[1pt]
+所用数据集 & \multicolumn{4}{c}{I128}\\
+学习率 & \multicolumn{4}{c}{0.01}\\
+优化函数  & \multicolumn{4}{c}{MGD+动量梯度下降法}\\
+正则化参数 & \multicolumn{4}{c}{0.0001}\\
+\midrule[1pt]
+accuracy & 0.652202 & 0.664327 & 0.673899 & 0.659860 \\ 
+\bottomrule[2pt]
+\end{tabular} 
+\label{fig:cnn7}
+\end{table}
+
+这四个模型的准确率变化曲线如图~\ref{fig:cnn8}
+\begin{figure}[htb]
+\centering
+\includegraphics[scale=0.35]{../figures/Log/VGGNet_new2/VGGNet_new2_acc.png} 
+\includegraphics[scale=0.35]{../figures/Log/VGGNet_new4/VGGNet_new4_acc.png} 
+\includegraphics[scale=0.35]{../figures/Log/VGGNet_new5/VGGNet_new5_acc.png} 
+\includegraphics[scale=0.35]{../figures/Log/VGGNet_new6/VGGNet_new6_acc.png} 
+\caption{CNN-A,CNN-B,CNN-C,CNN-D的结构与使用I128数据集，学习率设置为0.001，优化方法采用Mini-batch动量梯度下降法，以100个样本作为一个batch，epoch设为600准确率变化曲线（按左上，右上，左下，右下的顺序）}
+\label{fig:cnn8}
+\end{figure}
+
+
+
+
+
